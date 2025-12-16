@@ -79,14 +79,14 @@ const BackupRestore = ({ exportData, importData, clearAllData }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Respaldo y Restauración</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+      <h2 className="text-xl font-semibold dark:text-white mb-4">Respaldo y Restauración</h2>
       
       {importMessage && (
         <div className={`mb-4 p-4 rounded-lg ${
           importMessage.type === 'success' 
-            ? 'bg-green-100 border border-green-400 text-green-700' 
-            : 'bg-red-100 border border-red-400 text-red-700'
+            ? 'bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-100' 
+            : 'bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-100'
         }`}>
           {importMessage.text}
         </div>
@@ -94,9 +94,9 @@ const BackupRestore = ({ exportData, importData, clearAllData }) => {
 
       <div className="space-y-4">
         {/* Exportar datos */}
-        <div className="border rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">Exportar Datos</h3>
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="border dark:border-gray-700 rounded-lg p-4 dark:bg-gray-700">
+          <h3 className="font-medium text-gray-900 dark:text-white mb-2">Exportar Datos</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Descarga una copia de seguridad de todos tus datos en formato JSON. 
             Guárdala en un lugar seguro para poder restaurar tu información en el futuro.
           </p>
@@ -112,11 +112,11 @@ const BackupRestore = ({ exportData, importData, clearAllData }) => {
         </div>
 
         {/* Importar datos */}
-        <div className="border rounded-lg p-4">
-          <h3 className="font-medium text-gray-900 mb-2">Importar Datos</h3>
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="border dark:border-gray-700 rounded-lg p-4 dark:bg-gray-700">
+          <h3 className="font-medium text-gray-900 dark:text-white mb-2">Importar Datos</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
             Restaura tus datos desde un archivo de respaldo previamente exportado. 
-            <span className="font-semibold text-red-600"> Esto reemplazará todos tus datos actuales.</span>
+            <span className="font-semibold text-red-600 dark:text-red-400"> Esto reemplazará todos tus datos actuales.</span>
           </p>
           <input
             ref={fileInputRef}
@@ -137,9 +137,9 @@ const BackupRestore = ({ exportData, importData, clearAllData }) => {
         </div>
 
         {/* Eliminar todos los datos */}
-        <div className="border border-red-300 rounded-lg p-4 bg-red-50">
-          <h3 className="font-medium text-red-900 mb-2">Zona de Peligro</h3>
-          <p className="text-sm text-red-700 mb-4">
+        <div className="border border-red-300 dark:border-red-700 rounded-lg p-4 bg-red-50 dark:bg-red-900/20">
+          <h3 className="font-medium text-red-900 dark:text-red-200 mb-2">Zona de Peligro</h3>
+          <p className="text-sm text-red-700 dark:text-red-300 mb-4">
             Elimina permanentemente todos los datos de la aplicación. 
             <span className="font-semibold"> Esta acción no se puede deshacer.</span>
           </p>
@@ -155,9 +155,9 @@ const BackupRestore = ({ exportData, importData, clearAllData }) => {
         </div>
 
         {/* Información */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-blue-900 mb-2">ℹ️ Información</h4>
-          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">ℹ️ Información</h4>
+          <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-disc list-inside">
             <li>Los datos se guardan automáticamente en tu navegador (LocalStorage)</li>
             <li>Exporta regularmente copias de seguridad para evitar pérdida de datos</li>
             <li>Los archivos exportados son compatibles solo con esta aplicación</li>

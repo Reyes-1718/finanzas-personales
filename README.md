@@ -10,7 +10,17 @@ Aplicación web de gestión de finanzas personales desarrollada con React, Vite 
 - 🔮 **Proyección de Gastos**: Calcula automáticamente el gasto proyectado del próximo mes
 - 💾 **Exportar/Importar**: Respaldo completo de datos en formato JSON
 - 🎨 **Diseño Responsivo**: Interfaz moderna y adaptable a cualquier dispositivo
-- 💿 **Persistencia Local**: Todos los datos se guardan en LocalStorage del navegador
+- 🌓 **Tema Oscuro**: Soporte para modo oscuro con toggle en la interfaz
+- 💿 **Persistencia Local**: Todos los datos se guardan cifrados en LocalStorage
+- 📊 **Presupuestos Mensuales**: Define y monitorea presupuestos por categoría
+- 💡 **Estadísticas Avanzadas**: Análisis de gastos por categoría y promedio diario
+- 🔔 **Sistema de Alertas**: Recibe notificaciones al exceder límites de gasto
+- 📅 **Calendario**: Visualiza gastos diarios del mes en formato de calendario
+- 🎯 **Metas de Ahorro**: Establece y monitorea tus objetivos de ahorro
+- 🔍 **Búsqueda Avanzada**: Filtra transacciones por múltiples criterios
+- 📋 **Reportes PDF**: Exporta tus estados financieros en PDF
+- 💱 **Tasa de Cambio Actualizable**: Maneja múltiples monedas con tasa USD/DOP
+- ⏰ **Transacciones Recurrentes**: Automatiza ingresos y gastos recurrentes
 
 ## 🚀 Instalación y Configuración
 
@@ -223,11 +233,11 @@ npm run audit:fix   # Intento de remediación automática
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **React 18** - Biblioteca de UI
-- **Vite** - Build tool y dev server
-- **Tailwind CSS** - Framework de estilos
-- **Recharts** - Biblioteca de gráficos
-- **LocalStorage API** - Persistencia de datos
+- **React 18** - Biblioteca de UI con hooks personalizados
+- **Vite** - Build tool y dev server de alta velocidad
+- **Tailwind CSS** - Framework de estilos con soporte dark mode
+- **Recharts** - Gráficos interactivos y responsivos
+- **CryptoJS** - Cifrado AES para LocalStorage
 - **gh-pages** - Despliegue a GitHub Pages
 
 ## 📱 Compatibilidad

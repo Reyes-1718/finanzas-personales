@@ -29,27 +29,27 @@ const ExchangeRateWidget = () => {
   };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-blue-900">💱 Tasa de Cambio</h3>
+        <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-200">💱 Tasa de Cambio</h3>
         {lastUpdated && (
-          <span className="text-xs text-blue-700">
+          <span className="text-xs text-blue-700 dark:text-blue-400">
             Actualizado: {lastUpdated.toLocaleDateString('es-DO')}
           </span>
         )}
       </div>
 
-      {loading && <p className="text-sm text-blue-800">Cargando tasa...</p>}
+      {loading && <p className="text-sm text-blue-800 dark:text-blue-300">Cargando tasa...</p>}
       
       {error && (
-        <p className="text-xs text-red-600 mb-2">
+        <p className="text-xs text-red-600 dark:text-red-400 mb-2">
           Error: {error}
         </p>
       )}
 
       {!isEditing ? (
         <div>
-          <p className="text-lg font-bold text-blue-900 mb-3">
+          <p className="text-lg font-bold text-blue-900 dark:text-blue-200 mb-3">
             1 USD = RD$ {rate ? rate.toFixed(2) : '58.50'}
           </p>
           <div className="flex gap-2">
@@ -79,7 +79,7 @@ const ExchangeRateWidget = () => {
             onChange={(e) => setManualRate(e.target.value)}
             placeholder="Ej: 58.50"
             step="0.01"
-            className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
           />
           <div className="flex gap-2">
             <button
@@ -101,7 +101,7 @@ const ExchangeRateWidget = () => {
         </div>
       )}
 
-      <p className="text-xs text-blue-700 mt-2">
+      <p className="text-xs text-blue-700 dark:text-blue-400 mt-2">
         💡 Puedes actualizar automáticamente o ingresar manualmente
       </p>
     </div>
