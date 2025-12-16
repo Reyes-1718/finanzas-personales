@@ -294,6 +294,7 @@ const TransactionForm = ({
             >
               <option value="diaria">Diaria</option>
               <option value="semanal">Semanal</option>
+              <option value="quincenal">Quincenal</option>
               <option value="mensual">Mensual</option>
               <option value="anual">Anual</option>
             </select>

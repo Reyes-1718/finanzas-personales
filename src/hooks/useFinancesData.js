@@ -356,6 +356,9 @@ export const useFinancesData = () => {
       } else if (recurring.frequency === 'semanal') {
         nextDate.setDate(nextDate.getDate() + 7);
         shouldProcess = today >= nextDate;
+      } else if (recurring.frequency === 'quincenal') {
+        nextDate.setDate(nextDate.getDate() + 15);
+        shouldProcess = today >= nextDate;
       } else if (recurring.frequency === 'mensual') {
         nextDate.setMonth(nextDate.getMonth() + 1);
         shouldProcess = today >= nextDate;
