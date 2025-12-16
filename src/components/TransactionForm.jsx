@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
+import { PAYMENT_METHODS } from '../config/categoryConfig';
 
-const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddIncomeCategory, onAddExpenseCategory }) => {
+const TransactionForm = ({ 
+  onAddTransaction,
+  onAddRecurring,
+  incomeCategories, 
+  expenseCategories, 
+  addIncomeCategory, 
+  addExpenseCategory 
+}) => {
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
@@ -8,13 +16,15 @@ const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddI
     category: '',
     type: 'gasto-variable',
     incomeType: 'sueldo',
-    currency: 'DOP'
+    currency: 'DOP',
+    paymentMethod: 'efectivo'
   });
 
-  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringFrequency, setRecurringFrequency] = useState('mensual');
   const [newCategory, setNewCategory] = useState('');
+  const [showNewCategory, setShowNewCategory] = useState(false);
 
-  // Obtener las categorías según el tipo de transacción
   const getCurrentCategories = () => {
     return formData.type === 'ingreso' ? incomeCategories : expenseCategories;
   };
@@ -22,17 +32,13 @@ const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddI
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Formateo automático para el campo de amount
     if (name === 'amount' && value) {
-      // Solo permitir números y un punto decimal
       const formatted = value.replace(/[^0-9.]/g, '');
-      // Asegurar solo un punto decimal
       const parts = formatted.split('.');
       const limitedValue = parts.length > 2 
         ? parts[0] + '.' + parts.slice(1).join('').slice(0, 2)
         : formatted;
       
-      // Si cambia el tipo, actualizar la categoría a la primera de la nueva lista
       setFormData(prev => ({
         ...prev,
         [name]: limitedValue
@@ -55,300 +61,254 @@ const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddI
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!formData.amount || !formData.description || !formData.category) {
-      alert('Por favor, completa todos los campos obligatorios');
+    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      alert('Por favor ingresa un monto válido');
       return;
     }
 
-    if (parseFloat(formData.amount) <= 0) {
-      alert('El monto debe ser mayor a 0');
+    if (!formData.category) {
+      alert('Por favor selecciona una categoría');
       return;
     }
 
-    onSubmit({
-      ...formData,
-      amount: parseFloat(formData.amount)
-    });
+    // Agregar nueva categoría si es necesaria
+    if (newCategory.trim() && formData.category === newCategory) {
+      if (formData.type === 'ingreso') {
+        addIncomeCategory(newCategory);
+      } else {
+        addExpenseCategory(newCategory);
+      }
+    }
 
-    // Reset form
-    const defaultCategories = formData.type === 'ingreso' ? incomeCategories : expenseCategories;
+    // Agregar transacción
+    onAddTransaction(formData);
+
+    // Si es recurrente, agregar transacción recurrente
+    if (isRecurring) {
+      onAddRecurring({
+        ...formData,
+        frequency: recurringFrequency,
+        active: true
+      });
+    }
+
+    // Resetear formulario
     setFormData({
       amount: '',
       description: '',
       date: new Date().toISOString().split('T')[0],
-      category: defaultCategories[0] || '',
+      category: expenseCategories[0] || '',
       type: 'gasto-variable',
       incomeType: 'sueldo',
-      currency: 'DOP'
+      currency: 'DOP',
+      paymentMethod: 'efectivo'
     });
-  };
-
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      // Agregar a la categoría correcta según el tipo
-      if (formData.type === 'ingreso') {
-        onAddIncomeCategory(newCategory.trim());
-      } else {
-        onAddExpenseCategory(newCategory.trim());
-      }
-      setFormData(prev => ({ ...prev, category: newCategory.trim() }));
-      setNewCategory('');
-      setShowNewCategory(false);
-    } else {
-      // Ocultar si está vacío
-      setShowNewCategory(false);
-    }
-  };
-
-  const handleCancelNewCategory = () => {
     setNewCategory('');
     setShowNewCategory(false);
+    setIsRecurring(false);
   };
 
-  // Estilos dinámicos según el tipo
-  const getContainerStyle = () => {
-    switch(formData.type) {
-      case 'ingreso':
-        return 'bg-green-50 border-2 border-green-200';
-      case 'gasto-fijo':
-        return 'bg-red-50 border-2 border-red-200';
-      case 'gasto-variable':
-        return 'bg-orange-50 border-2 border-orange-200';
-      default:
-        return 'bg-white';
-    }
-  };
-
-  const getHeaderStyle = () => {
-    switch(formData.type) {
-      case 'ingreso':
-        return 'text-green-800';
-      case 'gasto-fijo':
-        return 'text-red-800';
-      case 'gasto-variable':
-        return 'text-orange-800';
-      default:
-        return 'text-gray-900';
-    }
-  };
+  const categories = getCurrentCategories();
 
   return (
-    <div className={`rounded-lg shadow p-6 transition-all duration-300 ${getContainerStyle()}`}>
-      <h2 className={`text-xl font-semibold mb-4 ${getHeaderStyle()}`}>Registrar Transacción</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Tipo de movimiento */}
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Agregar Transacción</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Tipo de Transacción */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Movimiento *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Tipo de Transacción
           </label>
-          <div className="flex gap-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="type"
-                value="ingreso"
-                checked={formData.type === 'ingreso'}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              <span className="text-sm">Ingreso</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="type"
-                value="gasto-fijo"
-                checked={formData.type === 'gasto-fijo'}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              <span className="text-sm">Gasto Fijo</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="type"
-                value="gasto-variable"
-                checked={formData.type === 'gasto-variable'}
-                onChange={handleChange}
-                className="mr-2"
-              />
-              <span className="text-sm">Gasto Variable</span>
-            </label>
-          </div>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+          >
+            <option value="ingreso">Ingreso</option>
+            <option value="gasto-fijo">Gasto Fijo</option>
+            <option value="gasto-variable">Gasto Variable</option>
+          </select>
         </div>
 
-        {/* Tipo de Ingreso - solo si es ingreso */}
-        {formData.type === 'ingreso' && (
-          <div className="bg-green-100 p-3 rounded-md border border-green-300">
-            <label className="block text-sm font-medium text-green-800 mb-2">
-              Tipo de Ingreso *
-            </label>
-            <div className="flex gap-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="incomeType"
-                  value="sueldo"
-                  checked={formData.incomeType === 'sueldo'}
-                  onChange={handleChange}
-                  className="mr-2"
-                />
-                <span className="text-sm text-green-800">Sueldo</span>
-              </label>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="incomeType"
-                  value="extra"
-                  checked={formData.incomeType === 'extra'}
-                  onChange={handleChange}
-                  className="mr-2"
-                />
-                <span className="text-sm text-green-800">Ingreso Extra</span>
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* Moneda y Monto */}
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">
-              Moneda *
-            </label>
-            <select
-              id="currency"
-              name="currency"
-              value={formData.currency}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="DOP">RD$ (Peso)</option>
-              <option value="USD">US$ (Dólar)</option>
-            </select>
-          </div>
-          <div className="col-span-2">
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-              Monto ({formData.currency === 'DOP' ? 'RD$' : 'US$'}) *
-            </label>
-            <input
-              type="number"
-              id="amount"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Descripción */}
+        {/* Moneda */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-            Descripción *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Moneda
+          </label>
+          <select
+            name="currency"
+            value={formData.currency}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+          >
+            <option value="DOP">DOP (RD$)</option>
+            <option value="USD">USD (US$)</option>
+          </select>
+        </div>
+
+        {/* Monto */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Monto
           </label>
           <input
             type="text"
-            id="description"
-            name="description"
-            value={formData.description}
+            name="amount"
+            value={formData.amount}
             onChange={handleChange}
-            placeholder="Ej: Compra en supermercado"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            placeholder="0.00"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
           />
+        </div>
+
+        {/* Tipo de Ingreso (solo para ingresos) */}
+        {formData.type === 'ingreso' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Tipo de Ingreso
+            </label>
+            <select
+              name="incomeType"
+              value={formData.incomeType}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+            >
+              <option value="sueldo">Sueldo</option>
+              <option value="extra">Extra</option>
+            </select>
+          </div>
+        )}
+
+        {/* Categoría */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Categoría
+          </label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+          >
+            {categories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+            {newCategory && <option value={newCategory}>{newCategory} (nueva)</option>}
+          </select>
+        </div>
+
+        {/* Método de Pago */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Método de Pago
+          </label>
+          <select
+            name="paymentMethod"
+            value={formData.paymentMethod}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+          >
+            {PAYMENT_METHODS.map(method => (
+              <option key={method.id} value={method.id}>
+                {method.emoji} {method.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Fecha */}
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha *
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Fecha
           </label>
           <input
             type="date"
-            id="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
           />
         </div>
+      </div>
 
-        {/* Categoría */}
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Categoría {formData.type === 'ingreso' ? '(Ingreso)' : '(Gasto)'} *
-          </label>
-          <div className="flex gap-2">
+      {/* Descripción */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Descripción (opcional)
+        </label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Ej: Mercado Jumbo - Compra de viandas"
+          rows="2"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+        />
+      </div>
+
+      {/* Nueva Categoría */}
+      <div>
+        <label className="flex items-center text-sm">
+          <input
+            type="checkbox"
+            checked={showNewCategory}
+            onChange={(e) => setShowNewCategory(e.target.checked)}
+            className="mr-2"
+          />
+          <span className="text-gray-700 dark:text-gray-300">Agregar nueva categoría</span>
+        </label>
+        {showNewCategory && (
+          <input
+            type="text"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="Nombre de la nueva categoría"
+            className="w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+          />
+        )}
+      </div>
+
+      {/* Transacción Recurrente */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+        <label className="flex items-center text-sm">
+          <input
+            type="checkbox"
+            checked={isRecurring}
+            onChange={(e) => setIsRecurring(e.target.checked)}
+            className="mr-2"
+          />
+          <span className="text-gray-700 dark:text-gray-300 font-medium">Esta es una transacción recurrente</span>
+        </label>
+        
+        {isRecurring && (
+          <div className="mt-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Frecuencia
+            </label>
             <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              value={recurringFrequency}
+              onChange={(e) => setRecurringFrequency(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
             >
-              {getCurrentCategories().map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
+              <option value="diaria">Diaria</option>
+              <option value="semanal">Semanal</option>
+              <option value="mensual">Mensual</option>
+              <option value="anual">Anual</option>
             </select>
-            <button
-              type="button"
-              onClick={() => setShowNewCategory(!showNewCategory)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              +
-            </button>
           </div>
-          
-          {showNewCategory && (
-            <div className="mt-2 flex gap-2">
-              <input
-                type="text"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                placeholder="Nueva categoría"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onBlur={() => {
-                  if (!newCategory.trim()) {
-                    setShowNewCategory(false);
-                  }
-                }}
-              />
-              <button
-                type="button"
-                onClick={handleAddCategory}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              >
-                Agregar
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelNewCategory}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          )}
-        </div>
+        )}
+      </div>
 
-        {/* Botón submit */}
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
-        >
-          Registrar Transacción
-        </button>
-      </form>
-    </div>
+      {/* Botón de Envío */}
+      <button
+        type="submit"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition dark:bg-blue-700 dark:hover:bg-blue-800"
+      >
+        Agregar Transacción
+      </button>
+    </form>
   );
 };
 

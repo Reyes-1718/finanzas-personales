@@ -29,6 +29,7 @@ const decryptData = (cipherText) => {
 // Estructura inicial de datos
 const initialData = {
   transactions: [],
+  recurringTransactions: [],
   incomeCategories: [
     'Salario',
     'Freelance',
@@ -294,6 +295,215 @@ export const useFinancesData = () => {
     };
   };
 
+  /**
+   * Agregar transacción recurrente
+   */
+  const addRecurringTransaction = (recurringData) => {
+    const newRecurring = {
+      id: Date.now().toString(),
+      ...recurringData,
+      createdAt: new Date().toISOString().split('T')[0],
+      active: true
+    };
+    
+    setData(prev => ({
+      ...prev,
+      recurringTransactions: [...prev.recurringTransactions, newRecurring]
+    }));
+  };
+
+  /**
+   * Actualizar transacción recurrente
+   */
+  const updateRecurringTransaction = (id, updatedData) => {
+    setData(prev => ({
+      ...prev,
+      recurringTransactions: prev.recurringTransactions.map(t => 
+        t.id === id ? { ...t, ...updatedData } : t
+      )
+    }));
+  };
+
+  /**
+   * Eliminar transacción recurrente
+   */
+  const deleteRecurringTransaction = (id) => {
+    setData(prev => ({
+      ...prev,
+      recurringTransactions: prev.recurringTransactions.filter(t => t.id !== id)
+    }));
+  };
+
+  /**
+   * Procesar transacciones recurrentes (se debe llamar diariamente)
+   */
+  const processRecurringTransactions = () => {
+    const today = new Date();
+    const processedIds = new Set();
+
+    data.recurringTransactions.forEach(recurring => {
+      if (!recurring.active) return;
+
+      const lastProcessed = recurring.lastProcessed 
+        ? new Date(recurring.lastProcessed)
+        : new Date(recurring.createdAt);
+
+      let shouldProcess = false;
+      const nextDate = new Date(lastProcessed);
+
+      if (recurring.frequency === 'diaria') {
+        shouldProcess = today.getTime() - lastProcessed.getTime() >= 24 * 60 * 60 * 1000;
+      } else if (recurring.frequency === 'semanal') {
+        nextDate.setDate(nextDate.getDate() + 7);
+        shouldProcess = today >= nextDate;
+      } else if (recurring.frequency === 'mensual') {
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        shouldProcess = today >= nextDate;
+      } else if (recurring.frequency === 'anual') {
+        nextDate.setFullYear(nextDate.getFullYear() + 1);
+        shouldProcess = today >= nextDate;
+      }
+
+      if (shouldProcess) {
+        addTransaction({
+          amount: recurring.amount,
+          type: recurring.type,
+          category: recurring.category,
+          currency: recurring.currency,
+          incomeType: recurring.incomeType,
+          paymentMethod: recurring.paymentMethod,
+          description: `[Recurrente] ${recurring.description}`,
+          date: today.toISOString().split('T')[0]
+        });
+
+        updateRecurringTransaction(recurring.id, {
+          lastProcessed: today.toISOString().split('T')[0]
+        });
+
+        processedIds.add(recurring.id);
+      }
+    });
+
+    return processedIds.size > 0;
+  };
+
+  /**
+   * Buscar transacciones por múltiples criterios
+   */
+  const searchTransactions = (criteria) => {
+    return data.transactions.filter(t => {
+      if (criteria.description && !t.description?.toLowerCase().includes(criteria.description.toLowerCase())) {
+        return false;
+      }
+      if (criteria.category && t.category !== criteria.category) {
+        return false;
+      }
+      if (criteria.type && t.type !== criteria.type) {
+        return false;
+      }
+      if (criteria.currency && t.currency !== criteria.currency) {
+        return false;
+      }
+      if (criteria.paymentMethod && t.paymentMethod !== criteria.paymentMethod) {
+        return false;
+      }
+      if (criteria.minAmount && parseFloat(t.amount) < criteria.minAmount) {
+        return false;
+      }
+      if (criteria.maxAmount && parseFloat(t.amount) > criteria.maxAmount) {
+        return false;
+      }
+      if (criteria.startDate && t.date < criteria.startDate) {
+        return false;
+      }
+      if (criteria.endDate && t.date > criteria.endDate) {
+        return false;
+      }
+      return true;
+    });
+  };
+
+  /**
+   * Obtener estadísticas avanzadas
+   */
+  const getAdvancedStats = (transactions) => {
+    if (transactions.length === 0) {
+      return {
+        averagePerCategory: {},
+        largestExpenses: [],
+        topCategories: [],
+        dailyAverage: 0,
+        transactionCount: 0
+      };
+    }
+
+    const stats = {
+      averagePerCategory: {},
+      largestExpenses: [],
+      topCategories: [],
+      dailyAverage: 0,
+      transactionCount: transactions.length
+    };
+
+    // Calcular promedio por categoría
+    const categoryTotals = {};
+    const categoryCounts = {};
+
+    transactions.forEach(t => {
+      const amountInDOP = convertToDOP(t.amount, t.currency);
+      categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amountInDOP;
+      categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
+    });
+
+    Object.keys(categoryTotals).forEach(cat => {
+      stats.averagePerCategory[cat] = categoryTotals[cat] / categoryCounts[cat];
+    });
+
+    // Top 5 gastos más grandes
+    stats.largestExpenses = transactions
+      .map(t => ({
+        ...t,
+        amountInDOP: convertToDOP(t.amount, t.currency)
+      }))
+      .sort((a, b) => b.amountInDOP - a.amountInDOP)
+      .slice(0, 5);
+
+    // Top categorías
+    stats.topCategories = Object.entries(categoryTotals)
+      .map(([cat, total]) => ({ category: cat, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    // Promedio diario
+    const uniqueDates = new Set(transactions.map(t => t.date)).size;
+    const totalAmount = transactions.reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+    stats.dailyAverage = totalAmount / (uniqueDates || 1);
+
+    return stats;
+  };
+
+  /**
+   * Obtener gastos por día para el mes
+   */
+  const getDailyExpenses = (year, month) => {
+    const monthTransactions = getTransactionsByMonth(year, month)
+      .filter(t => t.type.includes('gasto'));
+
+    const dailyMap = {};
+    monthTransactions.forEach(t => {
+      if (!dailyMap[t.date]) {
+        dailyMap[t.date] = 0;
+      }
+      dailyMap[t.date] += convertToDOP(t.amount, t.currency);
+    });
+
+    return Object.entries(dailyMap).map(([date, total]) => ({
+      date,
+      total,
+      dayOfWeek: new Date(date).toLocaleDateString('es-DO', { weekday: 'short' })
+    }));
+  };
+
   return {
     data,
     loading,
@@ -302,11 +512,18 @@ export const useFinancesData = () => {
     updateTransaction,
     addIncomeCategory,
     addExpenseCategory,
+    addRecurringTransaction,
+    updateRecurringTransaction,
+    deleteRecurringTransaction,
+    processRecurringTransactions,
     exportData,
     importData,
     clearAllData,
     getTransactionsByMonth,
     calculateBalance,
-    calculateProjection
+    calculateProjection,
+    searchTransactions,
+    getAdvancedStats,
+    getDailyExpenses
   };
 };

@@ -1,23 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFinancesData } from './hooks/useFinancesData';
+import { useTheme } from './hooks/useTheme';
+import { useSavingsGoals } from './hooks/useSavingsGoals';
+import { useBudgets } from './hooks/useBudgets';
+import { useAlerts } from './hooks/useAlerts';
 import Dashboard from './components/Dashboard';
 import TransactionForm from './components/TransactionForm';
 import Projection from './components/Projection';
 import BackupRestore from './components/BackupRestore';
 import ExchangeRateWidget from './components/ExchangeRateWidget';
+import SavingsGoals from './components/SavingsGoals';
+import Budgets from './components/Budgets';
+import AdvancedStats from './components/AdvancedStats';
+import SearchFilter from './components/SearchFilter';
+import Calendar from './components/Calendar';
+import ReportPDF from './components/ReportPDF';
+import Alerts from './components/Alerts';
 
 function App() {
   const {
     data,
     loading,
     addTransaction,
+    deleteTransaction,
+    updateTransaction,
     addIncomeCategory,
     addExpenseCategory,
+    addRecurringTransaction,
     exportData,
     importData,
     clearAllData,
+    getTransactionsByMonth,
     calculateBalance,
-    calculateProjection
+    calculateProjection,
+    searchTransactions,
+    getAdvancedStats,
+    getDailyExpenses
   } = useFinancesData();
 
   // Estado para el mes/año seleccionado
@@ -29,8 +47,15 @@ function App() {
     };
   });
 
+  // Tema y hooks adicionales
+  const { isDark, toggleTheme } = useTheme();
+  const savingsGoals = useSavingsGoals();
+  const budgets = useBudgets();
+  const alerts = useAlerts();
+
   // Estado para la pestaña activa
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, transactions, projection, backup
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [searchResults, setSearchResults] = useState(null);
 
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -74,170 +99,215 @@ function App() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
+  // Procesar transacciones recurrentes al cargar (si se desea en el futuro)
+  useEffect(() => {
+    if (!loading) {
+      // data.processRecurringTransactions && data.processRecurringTransactions();
+    }
+  }, [loading]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando...</p>
+          <p className="text-gray-600 dark:text-gray-400">Cargando...</p>
         </div>
       </div>
     );
   }
 
+  const monthlyTransactions = getTransactionsByMonth(selectedDate.year, selectedDate.month);
+  const stats = getAdvancedStats(monthlyTransactions);
+  const allCategories = [...data.incomeCategories, ...data.expenseCategories];
+
+  const handleSearch = (criteria) => {
+    const results = data.searchTransactions ? data.searchTransactions(criteria) : searchTransactions(criteria);
+    setSearchResults(results);
+    setActiveTab('search');
+  };
+
+  const handleClearSearch = () => {
+    setSearchResults(null);
+  };
+
+  // handleAddTransaction ya definido arriba
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">💰 Finanzas Personales</h1>
-            
-            {/* Selector de fecha */}
-            <div className="flex items-center gap-2">
+    <div className={isDark ? 'dark' : ''}>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+        <div className="flex h-screen overflow-hidden">
+          {/* Sidebar */}
+          <div className="w-64 bg-gray-900 dark:bg-gray-950 text-white p-6 overflow-y-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-2xl font-bold">💰 Finanzas</h1>
               <button
-                onClick={handlePrevMonth}
-                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                aria-label="Mes anterior"
+                onClick={toggleTheme}
+                className="text-yellow-400 hover:text-yellow-500 text-xl"
+                title="Cambiar tema"
               >
-                ←
-              </button>
-              
-              <select
-                value={selectedDate.month}
-                onChange={handleMonthChange}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {months.map((month, index) => (
-                  <option key={month} value={index}>{month}</option>
-                ))}
-              </select>
-              
-              <select
-                value={selectedDate.year}
-                onChange={handleYearChange}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {years.map(year => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-              
-              <button
-                onClick={handleNextMonth}
-                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-                aria-label="Mes siguiente"
-              >
-                →
+                {isDark ? '☀️' : '🌙'}
               </button>
             </div>
-          </div>
 
-          {/* Tabs de navegación */}
-          <div className="mt-4 border-b border-gray-200">
-            <nav className="-mb-px flex gap-6">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'dashboard'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                📊 Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('transactions')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'transactions'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                ➕ Registrar
-              </button>
-              <button
-                onClick={() => setActiveTab('projection')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'projection'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                📈 Proyección
-              </button>
-              <button
-                onClick={() => setActiveTab('backup')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'backup'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                💾 Respaldo
-              </button>
+            {/* Navegación Principal */}
+            <nav className="space-y-2 mb-8">
+              <NavButton icon="📊" label="Dashboard" isActive={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setSearchResults(null); }} />
+              <NavButton icon="💳" label="Transacciones" isActive={activeTab === 'transactions'} onClick={() => setActiveTab('transactions')} />
+              <NavButton icon="📈" label="Proyección" isActive={activeTab === 'projection'} onClick={() => setActiveTab('projection')} />
+              <NavButton icon="💚" label="Metas" isActive={activeTab === 'goals'} onClick={() => setActiveTab('goals')} />
+              <NavButton icon="📊" label="Presupuestos" isActive={activeTab === 'budgets'} onClick={() => setActiveTab('budgets')} />
+              <NavButton icon="📈" label="Estadísticas" isActive={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
+              <NavButton icon="📅" label="Calendario" isActive={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} />
+              <NavButton icon="📋" label="Reportes" isActive={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
+              <NavButton icon="🔔" label="Alertas" isActive={activeTab === 'alerts'} onClick={() => setActiveTab('alerts')} />
+              <NavButton icon="🔍" label="Buscar" isActive={activeTab === 'search'} onClick={() => setActiveTab('search')} />
+              <NavButton icon="💾" label="Backup" isActive={activeTab === 'backup'} onClick={() => setActiveTab('backup')} />
             </nav>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Contenido principal */}
-          <div className="lg:col-span-3">
-            {activeTab === 'dashboard' && (
-              <Dashboard
-                transactions={data.transactions}
-                selectedMonth={selectedDate.month}
-                selectedYear={selectedDate.year}
-                calculateBalance={calculateBalance}
-              />
-            )}
-
-            {activeTab === 'transactions' && (
-              <TransactionForm
-                onSubmit={handleAddTransaction}
-                incomeCategories={data.incomeCategories}
-                expenseCategories={data.expenseCategories}
-                onAddIncomeCategory={addIncomeCategory}
-                onAddExpenseCategory={addExpenseCategory}
-              />
-            )}
-
-            {activeTab === 'projection' && (
-              <Projection
-                calculateProjection={calculateProjection}
-                data={data}
-              />
-            )}
-
-            {activeTab === 'backup' && (
-              <BackupRestore
-                exportData={exportData}
-                importData={importData}
-                clearAllData={clearAllData}
-              />
-            )}
-          </div>
-
-          {/* Sidebar con widget de tasa de cambio */}
-          <div className="lg:col-span-1">
+            {/* Widget de Tasa de Cambio */}
             <ExchangeRateWidget />
           </div>
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-gray-500">
-            © 2025 Finanzas Personales - Todos los datos se almacenan localmente en tu navegador
-          </p>
+          {/* Contenido Principal */}
+          <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
+            <div className="p-8">
+              {/* Selector de Mes/Año */}
+              {!['backup', 'search'].includes(activeTab) && (
+                <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <button onClick={handlePrevMonth} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded transition">← Anterior</button>
+                    <select value={selectedDate.month} onChange={handleMonthChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded">
+                      {months.map((month, idx) => (<option key={idx} value={idx}>{month}</option>))}
+                    </select>
+                    <select value={selectedDate.year} onChange={handleYearChange} className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded">
+                      {years.map(year => (<option key={year} value={year}>{year}</option>))}
+                    </select>
+                    <button onClick={handleNextMonth} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded transition">Siguiente →</button>
+                    <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 ml-auto">{months[selectedDate.month]} {selectedDate.year}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Contenido por Pestaña */}
+              {activeTab === 'dashboard' && (
+                <Dashboard transactions={data.transactions} selectedMonth={selectedDate.month} selectedYear={selectedDate.year} calculateBalance={calculateBalance} />
+              )}
+
+              {activeTab === 'transactions' && (
+                <div className="space-y-6">
+                  <TransactionForm
+                    onAddTransaction={handleAddTransaction}
+                    onAddRecurring={addRecurringTransaction}
+                    incomeCategories={data.incomeCategories}
+                    expenseCategories={data.expenseCategories}
+                    addIncomeCategory={addIncomeCategory}
+                    addExpenseCategory={addExpenseCategory}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'projection' && (
+                <Projection calculateProjection={calculateProjection} data={data} />
+              )}
+
+              {activeTab === 'goals' && (
+                <SavingsGoals
+                  goals={savingsGoals.goals}
+                  addGoal={savingsGoals.addGoal}
+                  updateGoal={savingsGoals.updateGoal}
+                  deleteGoal={savingsGoals.deleteGoal}
+                  getGoalProgress={savingsGoals.getGoalProgress}
+                />
+              )}
+
+              {activeTab === 'budgets' && (
+                <Budgets
+                  budgets={budgets.budgets}
+                  setBudget={budgets.setBudget}
+                  getAllBudgetsForMonth={budgets.getAllBudgetsForMonth}
+                  deleteBudget={budgets.deleteBudget}
+                  transactions={monthlyTransactions}
+                  month={selectedDate.month}
+                  year={selectedDate.year}
+                  categories={allCategories}
+                />
+              )}
+
+              {activeTab === 'stats' && (
+                <AdvancedStats stats={stats} transactions={monthlyTransactions} />
+              )}
+
+              {activeTab === 'calendar' && (
+                <Calendar transactions={monthlyTransactions} year={selectedDate.year} month={selectedDate.month} getDailyExpenses={getDailyExpenses} />
+              )}
+
+              {activeTab === 'reports' && (
+                <ReportPDF transactions={data.transactions} month={selectedDate.month} year={selectedDate.year} calculateBalance={calculateBalance} calculateProjection={calculateProjection} />
+              )}
+
+              {activeTab === 'alerts' && (
+                <Alerts alerts={alerts.alerts} dismissAlert={alerts.dismissAlert} settings={alerts.getSettings()} updateSettings={alerts.updateSettings} />
+              )}
+
+              {activeTab === 'search' && (
+                <div className="space-y-6">
+                  <SearchFilter onSearch={handleSearch} categories={allCategories} clearSearch={handleClearSearch} />
+                  {searchResults !== null && (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Resultados: {searchResults.length} transacciones</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="bg-gray-50 dark:bg-gray-700">
+                              <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Fecha</th>
+                              <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Tipo</th>
+                              <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Categoría</th>
+                              <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Descripción</th>
+                              <th className="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Monto</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {searchResults.map(t => (
+                              <tr key={t.id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
+                                <td className="px-4 py-2 text-gray-900 dark:text-white">{t.date}</td>
+                                <td className="px-4 py-2 text-gray-900 dark:text-white">{t.type}</td>
+                                <td className="px-4 py-2 text-gray-900 dark:text-white">{t.category}</td>
+                                <td className="px-4 py-2 text-gray-600 dark:text-gray-400">{t.description}</td>
+                                <td className="px-4 py-2 font-semibold">{t.currency === 'USD' ? 'US$' : 'RD$'} {t.amount}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'backup' && (
+                <BackupRestore onExport={exportData} onImport={importData} onClear={clearAllData} />
+              )}
+            </div>
+          </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
+
+// Componente de Botón de Navegación
+const NavButton = ({ icon, label, isActive, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`w-full text-left px-4 py-2 rounded transition ${
+      isActive 
+        ? 'bg-blue-600 text-white' 
+        : 'text-gray-300 hover:bg-gray-800'
+    }`}
+  >
+    {icon} {label}
+  </button>
+);
 
 export default App;
