@@ -73,16 +73,18 @@ const Dashboard = ({
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
+  const formatCurrency = (amount, currency = 'DOP') => {
+    const symbol = currency === 'USD' ? 'US$' : 'RD$';
+    return `${symbol} ${new Intl.NumberFormat('es-DO', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount)}`;
   };
 
-  const getTypeLabel = (type) => {
+  const getTypeLabel = (type, incomeType) => {
     switch(type) {
-      case 'ingreso': return 'Ingreso';
+      case 'ingreso': 
+        return incomeType === 'sueldo' ? 'Ingreso - Sueldo' : 'Ingreso - Extra';
       case 'gasto-fijo': return 'Gasto Fijo';
       case 'gasto-variable': return 'Gasto Variable';
       default: return type;
@@ -199,14 +201,14 @@ const Dashboard = ({
                           ? 'bg-red-100 text-red-800'
                           : 'bg-orange-100 text-orange-800'
                       }`}>
-                        {getTypeLabel(transaction.type)}
+                        {getTypeLabel(transaction.type, transaction.incomeType)}
                       </span>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-medium ${
                       transaction.type === 'ingreso' ? 'text-green-600' : 'text-red-600'
                     }`}>
                       {transaction.type === 'ingreso' ? '+' : '-'}
-                      {formatCurrency(transaction.amount)}
+                      {formatCurrency(transaction.amount, transaction.currency)}
                     </td>
                   </tr>
                 ))}

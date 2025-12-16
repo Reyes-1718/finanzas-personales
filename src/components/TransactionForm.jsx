@@ -6,7 +6,9 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
     description: '',
     date: new Date().toISOString().split('T')[0],
     category: categories[0] || '',
-    type: 'gasto-variable'
+    type: 'gasto-variable',
+    incomeType: 'sueldo',
+    currency: 'DOP'
   });
 
   const [showNewCategory, setShowNewCategory] = useState(false);
@@ -44,7 +46,9 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
       description: '',
       date: new Date().toISOString().split('T')[0],
       category: categories[0] || '',
-      type: 'gasto-variable'
+      type: 'gasto-variable',
+      incomeType: 'sueldo',
+      currency: 'DOP'
     });
   };
 
@@ -54,12 +58,47 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
       setFormData(prev => ({ ...prev, category: newCategory.trim() }));
       setNewCategory('');
       setShowNewCategory(false);
+    } else {
+      // Ocultar si está vacío
+      setShowNewCategory(false);
+    }
+  };
+
+  const handleCancelNewCategory = () => {
+    setNewCategory('');
+    setShowNewCategory(false);
+  };
+
+  // Estilos dinámicos según el tipo
+  const getContainerStyle = () => {
+    switch(formData.type) {
+      case 'ingreso':
+        return 'bg-green-50 border-2 border-green-200';
+      case 'gasto-fijo':
+        return 'bg-red-50 border-2 border-red-200';
+      case 'gasto-variable':
+        return 'bg-orange-50 border-2 border-orange-200';
+      default:
+        return 'bg-white';
+    }
+  };
+
+  const getHeaderStyle = () => {
+    switch(formData.type) {
+      case 'ingreso':
+        return 'text-green-800';
+      case 'gasto-fijo':
+        return 'text-red-800';
+      case 'gasto-variable':
+        return 'text-orange-800';
+      default:
+        return 'text-gray-900';
     }
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-semibold mb-4">Registrar Transacción</h2>
+    <div className={`rounded-lg shadow p-6 transition-all duration-300 ${getContainerStyle()}`}>
+      <h2 className={`text-xl font-semibold mb-4 ${getHeaderStyle()}`}>Registrar Transacción</h2>
       
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Tipo de movimiento */}
@@ -104,23 +143,73 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
           </div>
         </div>
 
-        {/* Monto */}
-        <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-            Monto (€) *
-          </label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            step="0.01"
-            min="0"
-            placeholder="0.00"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+        {/* Tipo de Ingreso - solo si es ingreso */}
+        {formData.type === 'ingreso' && (
+          <div className="bg-green-100 p-3 rounded-md border border-green-300">
+            <label className="block text-sm font-medium text-green-800 mb-2">
+              Tipo de Ingreso *
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="incomeType"
+                  value="sueldo"
+                  checked={formData.incomeType === 'sueldo'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm text-green-800">Sueldo</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="incomeType"
+                  value="extra"
+                  checked={formData.incomeType === 'extra'}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                <span className="text-sm text-green-800">Ingreso Extra</span>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Moneda y Monto */}
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-1">
+              Moneda *
+            </label>
+            <select
+              id="currency"
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="DOP">RD$ (Peso)</option>
+              <option value="USD">US$ (Dólar)</option>
+            </select>
+          </div>
+          <div className="col-span-2">
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+              Monto ({formData.currency === 'DOP' ? 'RD$' : 'US$'}) *
+            </label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
         </div>
 
         {/* Descripción */}
@@ -191,6 +280,11 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
                 onChange={(e) => setNewCategory(e.target.value)}
                 placeholder="Nueva categoría"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onBlur={() => {
+                  if (!newCategory.trim()) {
+                    setShowNewCategory(false);
+                  }
+                }}
               />
               <button
                 type="button"
@@ -198,6 +292,13 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
               >
                 Agregar
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelNewCategory}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
+              >
+                Cancelar
               </button>
             </div>
           )}

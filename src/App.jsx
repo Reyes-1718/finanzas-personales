@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import TransactionForm from './components/TransactionForm';
 import Projection from './components/Projection';
 import BackupRestore from './components/BackupRestore';
+import ExchangeRateWidget from './components/ExchangeRateWidget';
 
 function App() {
   const {
@@ -181,37 +182,47 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {activeTab === 'dashboard' && (
-          <Dashboard
-            transactions={data.transactions}
-            selectedMonth={selectedDate.month}
-            selectedYear={selectedDate.year}
-            calculateBalance={calculateBalance}
-          />
-        )}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Contenido principal */}
+          <div className="lg:col-span-3">
+            {activeTab === 'dashboard' && (
+              <Dashboard
+                transactions={data.transactions}
+                selectedMonth={selectedDate.month}
+                selectedYear={selectedDate.year}
+                calculateBalance={calculateBalance}
+              />
+            )}
 
-        {activeTab === 'transactions' && (
-          <TransactionForm
-            onSubmit={handleAddTransaction}
-            categories={data.categories}
-            onAddCategory={addCategory}
-          />
-        )}
+            {activeTab === 'transactions' && (
+              <TransactionForm
+                onSubmit={handleAddTransaction}
+                categories={data.categories}
+                onAddCategory={addCategory}
+              />
+            )}
 
-        {activeTab === 'projection' && (
-          <Projection
-            calculateProjection={calculateProjection}
-            data={data}
-          />
-        )}
+            {activeTab === 'projection' && (
+              <Projection
+                calculateProjection={calculateProjection}
+                data={data}
+              />
+            )}
 
-        {activeTab === 'backup' && (
-          <BackupRestore
-            exportData={exportData}
-            importData={importData}
-            clearAllData={clearAllData}
-          />
-        )}
+            {activeTab === 'backup' && (
+              <BackupRestore
+                exportData={exportData}
+                importData={importData}
+                clearAllData={clearAllData}
+              />
+            )}
+          </div>
+
+          {/* Sidebar con widget de tasa de cambio */}
+          <div className="lg:col-span-1">
+            <ExchangeRateWidget />
+          </div>
+        </div>
       </main>
 
       {/* Footer */}

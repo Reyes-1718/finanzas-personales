@@ -4,10 +4,10 @@ const Projection = ({ calculateProjection, data }) => {
   const projection = calculateProjection();
   
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
+    return `RD$ ${new Intl.NumberFormat('es-DO', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount)}`;
   };
 
   // Calcular desglose por categoría para gastos fijos
