@@ -1,6 +1,30 @@
 import { useState, useEffect } from 'react';
+import CryptoJS from 'crypto-js';
 
 const STORAGE_KEY = 'finanzas_data';
+// Nota: establece VITE_ENCRYPTION_KEY en .env.local para producción; evita exponerla en el repo
+const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'cambia-esta-clave-en-.env';
+
+const encryptData = (payload) => {
+  try {
+    return CryptoJS.AES.encrypt(JSON.stringify(payload), ENCRYPTION_KEY).toString();
+  } catch (error) {
+    console.error('Error al encriptar datos:', error);
+    return null;
+  }
+};
+
+const decryptData = (cipherText) => {
+  if (!cipherText) return null;
+  try {
+    const bytes = CryptoJS.AES.decrypt(cipherText, ENCRYPTION_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return decrypted ? JSON.parse(decrypted) : null;
+  } catch (error) {
+    console.error('Error al desencriptar datos:', error);
+    return null;
+  }
+};
 
 // Estructura inicial de datos
 const initialData = {
@@ -29,13 +53,13 @@ export const useFinancesData = () => {
   useEffect(() => {
     try {
       const storedData = localStorage.getItem(STORAGE_KEY);
-      if (storedData) {
-        const parsed = JSON.parse(storedData);
+      const decrypted = decryptData(storedData);
+
+      if (decrypted) {
         setData({
           ...initialData,
-          ...parsed,
-          // Asegurar que las categorías siempre existan
-          categories: parsed.categories || initialData.categories
+          ...decrypted,
+          categories: decrypted.categories || initialData.categories
         });
       }
     } catch (error) {
@@ -49,7 +73,10 @@ export const useFinancesData = () => {
   useEffect(() => {
     if (!loading) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const encrypted = encryptData(data);
+        if (encrypted) {
+          localStorage.setItem(STORAGE_KEY, encrypted);
+        }
       } catch (error) {
         console.error('Error al guardar datos en LocalStorage:', error);
       }

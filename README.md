@@ -41,9 +41,20 @@ Esto instalará:
 - Vite 5.0.8
 - Tailwind CSS 3.4.0
 - Recharts 2.10.3
+- CryptoJS 4.2.0 (cifrado en LocalStorage)
 - gh-pages 6.1.0
 
-### 3. Configurar para GitHub Pages
+### 3. Variables de entorno (clave de cifrado)
+
+Crea un archivo `.env.local` en la raíz con:
+
+```
+VITE_ENCRYPTION_KEY="clave-segura-unica"
+```
+
+> No compartas esta clave ni la subas al repositorio. El LocalStorage se mantiene, pero ahora todos los datos se guardan cifrados con AES.
+
+### 4. Configurar para GitHub Pages
 
 Abre el archivo `vite.config.js` y modifica la propiedad `base`:
 
@@ -60,7 +71,7 @@ export default defineConfig({
 base: '/my-finances/',
 ```
 
-### 4. Desarrollo Local
+### 5. Desarrollo Local
 
 Para ejecutar la aplicación en modo desarrollo:
 
@@ -194,11 +205,21 @@ Proyección = Gastos Fijos + Promedio(Gastos Variables últimos 3 meses)
 ## 🔧 Scripts Disponibles
 
 ```bash
-npm run dev        # Modo desarrollo
-npm run build      # Construir para producción
-npm run preview    # Vista previa del build
-npm run deploy     # Desplegar a GitHub Pages
+npm run dev         # Modo desarrollo
+npm run build       # Construir para producción
+npm run preview     # Vista previa del build
+npm run predeploy   # Build + auditoría de vulnerabilidades
+npm run deploy      # Desplegar a GitHub Pages (usa dist)
+npm run audit       # Auditoría de seguridad
+npm run audit:fix   # Intento de remediación automática
 ```
+
+## 🔒 Seguridad y mantenimiento
+
+- **LocalStorage + cifrado**: Los datos se guardan localmente, cifrados con AES usando `VITE_ENCRYPTION_KEY`.
+- **Auditoría semanal**: Ejecuta `npm run audit` para detectar vulnerabilidades. Prioriza críticas/altas.
+- **Auditoría mensual**: Ejecuta `npm run audit:fix`; después corre `npm run build`. Si quedan issues, evalúa actualizaciones manuales.
+- **Antes de instalar dependencias**: Usa `npm install --dry-run` para simular la instalación y revisar qué paquetes y versiones se traerán sin tocar `node_modules`.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -255,7 +276,33 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 1. Asegúrate de tener gastos registrados en el mes seleccionado
 2. Verifica que las transacciones tengan categoría asignada
 
-## 📧 Contacto
+## � Nota sobre Seguridad Actual
+
+- ✅ LocalStorage + cifrado AES (protege contra acceso casual)
+- ⚠️ La clave de cifrado se expone en el bundle (ya que es un app cliente)
+- ✅ Suficiente para uso personal; no es 100% seguro para datos muy sensibles
+
+## 🚀 Mejoras Futuras (Roadmap)
+
+### v1.1.0 (Próxima)
+- [ ] Migración a Firebase/Supabase para autenticación y backend
+- [ ] Cifrado servidor-side (clave oculta en backend, no en cliente)
+- [ ] Sincronización multi-dispositivo
+- [ ] Autenticación con Google/GitHub
+
+### v1.2.0
+- [ ] Categorías personalizables con colores
+- [ ] Filtros avanzados en transacciones
+- [ ] Reportes mensuales en PDF
+- [ ] Notificaciones de alertas de gasto
+
+### v2.0.0
+- [ ] App móvil nativa (React Native)
+- [ ] Soporte offline-first con IndexedDB
+- [ ] Integración con APIs bancarias
+- [ ] Análisis predictivo de gastos con IA
+
+## �📧 Contacto
 
 Si tienes preguntas o sugerencias, abre un issue en GitHub.
 
