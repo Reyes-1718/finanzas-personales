@@ -10,7 +10,7 @@ const Projection = ({ calculateProjection, data }) => {
     }).format(amount)}`;
   };
 
-  // Calcular desglose por categoría para gastos fijos
+  // Calcular desglose por categoría para gastos fijos (con moneda original)
   const fixedExpensesByCategory = React.useMemo(() => {
     const now = new Date();
     const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
@@ -23,13 +23,33 @@ const Projection = ({ calculateProjection, data }) => {
         return t.type === 'gasto-fijo' && date >= threeMonthsAgo;
       })
       .forEach(t => {
-        categoryMap[t.category] = (categoryMap[t.category] || 0) + parseFloat(t.amount);
+        if (!categoryMap[t.category]) {
+          categoryMap[t.category] = [];
+        }
+        categoryMap[t.category].push({
+          amount: parseFloat(t.amount),
+          currency: t.currency || 'DOP'
+        });
       });
     
-    return Object.entries(categoryMap).map(([category, amount]) => ({
-      category,
-      amount
-    }));
+    return Object.entries(categoryMap).map(([category, items]) => {
+      // Agrupar por moneda
+      const byCurrency = {};
+      items.forEach(item => {
+        if (!byCurrency[item.currency]) {
+          byCurrency[item.currency] = 0;
+        }
+        byCurrency[item.currency] += item.amount;
+      });
+      
+      return {
+        category,
+        items: Object.entries(byCurrency).map(([curr, amt]) => ({
+          currency: curr,
+          amount: amt
+        }))
+      };
+    });
   }, [data.transactions]);
 
   return (
@@ -71,10 +91,20 @@ const Projection = ({ calculateProjection, data }) => {
           <div>
             <h3 className="text-lg font-medium mb-3">Desglose de Gastos Fijos</h3>
             <div className="space-y-2">
-              {fixedExpensesByCategory.map(({ category, amount }) => (
-                <div key={category} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
-                  <span className="text-sm font-medium text-gray-700">{category}</span>
-                  <span className="text-sm font-semibold text-gray-900">{formatCurrency(amount)}</span>
+              {fixedExpensesByCategory.map(({ category, items }) => (
+                <div key={category}>
+                  <div className="py-2 px-3 bg-gray-50 rounded">
+                    <span className="text-sm font-medium text-gray-700">{category}</span>
+                  </div>
+                  <div className="pl-6 space-y-1">
+                    {items.map((item, idx) => (
+                      <div key={`${category}-${item.currency}-${idx}`} className="flex justify-between items-center py-1 px-3 text-xs">
+                        <span className="text-gray-600">
+                          {item.currency === 'USD' ? 'US$' : 'RD$'} {item.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

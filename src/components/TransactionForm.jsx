@@ -22,8 +22,22 @@ const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddI
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Si cambia el tipo, actualizar la categoría a la primera de la nueva lista
-    if (name === 'type') {
+    // Formateo automático para el campo de amount
+    if (name === 'amount' && value) {
+      // Solo permitir números y un punto decimal
+      const formatted = value.replace(/[^0-9.]/g, '');
+      // Asegurar solo un punto decimal
+      const parts = formatted.split('.');
+      const limitedValue = parts.length > 2 
+        ? parts[0] + '.' + parts.slice(1).join('').slice(0, 2)
+        : formatted;
+      
+      // Si cambia el tipo, actualizar la categoría a la primera de la nueva lista
+      setFormData(prev => ({
+        ...prev,
+        [name]: limitedValue
+      }));
+    } else if (name === 'type') {
       const newCategories = value === 'ingreso' ? incomeCategories : expenseCategories;
       setFormData(prev => ({
         ...prev,
