@@ -219,14 +219,34 @@ export const useFinancesData = () => {
   };
 
   /**
-   * Calcular balance (ingresos - gastos)
+   * Obtener tasa de cambio desde localStorage o usar defecto
+   */
+  const getExchangeRate = () => {
+    const stored = localStorage.getItem('exchange_rate_usd_dop');
+    return stored ? parseFloat(stored) : 63.52; // Tasa por defecto
+  };
+
+  /**
+   * Convertir monto a DOP según la moneda
+   */
+  const convertToDOP = (amount, currency) => {
+    const rate = getExchangeRate();
+    if (currency === 'USD') {
+      return parseFloat(amount) * rate;
+    }
+    return parseFloat(amount);
+  };
+
+  /**
+   * Calcular balance (ingresos - gastos) con conversión de monedas
    */
   const calculateBalance = (transactions) => {
     return transactions.reduce((acc, t) => {
+      const amountInDOP = convertToDOP(t.amount, t.currency);
       if (t.type === 'ingreso') {
-        return acc + parseFloat(t.amount);
+        return acc + amountInDOP;
       } else {
-        return acc - parseFloat(t.amount);
+        return acc - amountInDOP;
       }
     }, 0);
   };
@@ -234,6 +254,7 @@ export const useFinancesData = () => {
   /**
    * Calcular proyección de gastos para el próximo mes
    * Suma de gastos fijos + promedio de gastos variables de los últimos 3 meses
+   * Convierte USD a DOP usando la tasa de cambio actual
    */
   const calculateProjection = () => {
     const now = new Date();
@@ -245,19 +266,20 @@ export const useFinancesData = () => {
       return date >= threeMonthsAgo;
     });
 
-    // Gastos fijos
+    // Gastos fijos (convertidos a DOP)
     const fixedExpenses = recentTransactions
       .filter(t => t.type === 'gasto-fijo')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
 
-    // Gastos variables por mes
+    // Gastos variables por mes (convertidos a DOP)
     const variableExpensesByMonth = {};
     recentTransactions
       .filter(t => t.type === 'gasto-variable')
       .forEach(t => {
         const date = new Date(t.date);
         const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-        variableExpensesByMonth[monthKey] = (variableExpensesByMonth[monthKey] || 0) + parseFloat(t.amount);
+        const amountInDOP = convertToDOP(t.amount, t.currency);
+        variableExpensesByMonth[monthKey] = (variableExpensesByMonth[monthKey] || 0) + amountInDOP;
       });
 
     // Promedio de gastos variables

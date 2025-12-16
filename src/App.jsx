@@ -70,9 +70,9 @@ function App() {
     setActiveTab('dashboard'); // Cambiar a dashboard después de agregar
   };
 
-  // Generar array de años (últimos 5 y próximos 2)
+  // Generar array de años (últimos 2 años + año actual + próximos 2 años)
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 8 }, (_, i) => currentYear - 5 + i);
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   if (loading) {
     return (
