@@ -100,7 +100,10 @@ const Projection = ({ calculateProjection, data }) => {
                     {items.map((item, idx) => (
                       <div key={`${category}-${item.currency}-${idx}`} className="flex justify-between items-center py-1 px-3 text-xs">
                         <span className="text-gray-600">
-                          {item.currency === 'USD' ? 'US$' : 'RD$'} {item.amount.toFixed(2)}
+                          {item.currency === 'USD' ? 'US$' : 'RD$'} {new Intl.NumberFormat('es-DO', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(item.amount)}
                         </span>
                       </div>
                     ))}
