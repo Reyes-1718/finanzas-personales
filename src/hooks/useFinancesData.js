@@ -29,7 +29,17 @@ const decryptData = (cipherText) => {
 // Estructura inicial de datos
 const initialData = {
   transactions: [],
-  categories: [
+  incomeCategories: [
+    'Salario',
+    'Freelance',
+    'Inversiones',
+    'Bonos',
+    'Propinas',
+    'Ventas',
+    'Alquiler',
+    'Otros Ingresos'
+  ],
+  expenseCategories: [
     'Alimentación',
     'Transporte',
     'Vivienda',
@@ -37,7 +47,9 @@ const initialData = {
     'Entretenimiento',
     'Salud',
     'Educación',
-    'Otros'
+    'Ropa',
+    'Tecnología',
+    'Otros Gastos'
   ]
 };
 
@@ -59,7 +71,8 @@ export const useFinancesData = () => {
         setData({
           ...initialData,
           ...decrypted,
-          categories: decrypted.categories || initialData.categories
+          incomeCategories: decrypted.incomeCategories || initialData.incomeCategories,
+          expenseCategories: decrypted.expenseCategories || initialData.expenseCategories
         });
       }
     } catch (error) {
@@ -122,13 +135,25 @@ export const useFinancesData = () => {
   };
 
   /**
-   * Agregar una nueva categoría
+   * Agregar una nueva categoría de ingreso
    */
-  const addCategory = (category) => {
-    if (!data.categories.includes(category)) {
+  const addIncomeCategory = (category) => {
+    if (!data.incomeCategories.includes(category)) {
       setData(prev => ({
         ...prev,
-        categories: [...prev.categories, category]
+        incomeCategories: [...prev.incomeCategories, category]
+      }));
+    }
+  };
+
+  /**
+   * Agregar una nueva categoría de gasto
+   */
+  const addExpenseCategory = (category) => {
+    if (!data.expenseCategories.includes(category)) {
+      setData(prev => ({
+        ...prev,
+        expenseCategories: [...prev.expenseCategories, category]
       }));
     }
   };
@@ -164,7 +189,8 @@ export const useFinancesData = () => {
       setData({
         ...initialData,
         ...parsed,
-        categories: parsed.categories || initialData.categories
+        incomeCategories: parsed.incomeCategories || initialData.incomeCategories,
+        expenseCategories: parsed.expenseCategories || initialData.expenseCategories
       });
       
       return { success: true, message: 'Datos importados exitosamente' };
@@ -252,7 +278,8 @@ export const useFinancesData = () => {
     addTransaction,
     deleteTransaction,
     updateTransaction,
-    addCategory,
+    addIncomeCategory,
+    addExpenseCategory,
     exportData,
     importData,
     clearAllData,

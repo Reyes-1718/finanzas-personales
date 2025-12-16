@@ -11,7 +11,8 @@ function App() {
     data,
     loading,
     addTransaction,
-    addCategory,
+    addIncomeCategory,
+    addExpenseCategory,
     exportData,
     importData,
     clearAllData,
@@ -197,8 +198,10 @@ function App() {
             {activeTab === 'transactions' && (
               <TransactionForm
                 onSubmit={handleAddTransaction}
-                categories={data.categories}
-                onAddCategory={addCategory}
+                incomeCategories={data.incomeCategories}
+                expenseCategories={data.expenseCategories}
+                onAddIncomeCategory={addIncomeCategory}
+                onAddExpenseCategory={addExpenseCategory}
               />
             )}
 

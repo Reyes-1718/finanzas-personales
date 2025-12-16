@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
+const TransactionForm = ({ onSubmit, incomeCategories, expenseCategories, onAddIncomeCategory, onAddExpenseCategory }) => {
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
-    category: categories[0] || '',
+    category: '',
     type: 'gasto-variable',
     incomeType: 'sueldo',
     currency: 'DOP'
@@ -14,12 +14,28 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategory, setNewCategory] = useState('');
 
+  // Obtener las categorías según el tipo de transacción
+  const getCurrentCategories = () => {
+    return formData.type === 'ingreso' ? incomeCategories : expenseCategories;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Si cambia el tipo, actualizar la categoría a la primera de la nueva lista
+    if (name === 'type') {
+      const newCategories = value === 'ingreso' ? incomeCategories : expenseCategories;
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        category: newCategories[0] || ''
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -41,11 +57,12 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
     });
 
     // Reset form
+    const defaultCategories = formData.type === 'ingreso' ? incomeCategories : expenseCategories;
     setFormData({
       amount: '',
       description: '',
       date: new Date().toISOString().split('T')[0],
-      category: categories[0] || '',
+      category: defaultCategories[0] || '',
       type: 'gasto-variable',
       incomeType: 'sueldo',
       currency: 'DOP'
@@ -54,7 +71,12 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
-      onAddCategory(newCategory.trim());
+      // Agregar a la categoría correcta según el tipo
+      if (formData.type === 'ingreso') {
+        onAddIncomeCategory(newCategory.trim());
+      } else {
+        onAddExpenseCategory(newCategory.trim());
+      }
       setFormData(prev => ({ ...prev, category: newCategory.trim() }));
       setNewCategory('');
       setShowNewCategory(false);
@@ -248,7 +270,7 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
         {/* Categoría */}
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-            Categoría *
+            Categoría {formData.type === 'ingreso' ? '(Ingreso)' : '(Gasto)'} *
           </label>
           <div className="flex gap-2">
             <select
@@ -259,7 +281,7 @@ const TransactionForm = ({ onSubmit, categories, onAddCategory }) => {
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              {categories.map(cat => (
+              {getCurrentCategories().map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
