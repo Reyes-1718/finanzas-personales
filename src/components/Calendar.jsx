@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
-  const dailyExpenses = getDailyExpenses(year, month);
+  const dailyExpenses = useMemo(() => getDailyExpenses(year, month), [getDailyExpenses, year, month]);
   
   const getDaysInMonth = (y, m) => new Date(y, m + 1, 0).getDate();
   const getFirstDayOfMonth = (y, m) => new Date(y, m, 1).getDay();
@@ -24,6 +24,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
   ];
 
   const getDayExpense = (day) => {
+    // Asegurar formato YYYY-MM-DD con precisión UTC
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayData = dailyExpenses.find(d => d.date === dateStr);
     return dayData ? dayData.total : 0;
@@ -38,6 +39,15 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
     if (maxExpense === 0) return 0;
     return (amount / maxExpense) * 100;
   };
+
+  // Validar que el mes/año sean válidos
+  if (month < 0 || month > 11 || year < 1900 || year > 2100) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <p className="text-red-600 dark:text-red-400">Mes o año inválido seleccionado</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -79,6 +89,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
                     : 'inherit',
                   color: expense > 0 && intensity > 50 ? 'white' : 'inherit'
                 }}
+                title={`${monthNames[month]} ${day}, ${year}: RD$ ${expense.toFixed(2)}`}
               >
                 <span className="font-bold">{day}</span>
                 {expense > 0 && (
@@ -95,7 +106,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
       {/* Leyenda */}
       <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-sm">
         <p className="text-gray-700 dark:text-gray-300">
-          <span className="font-medium">Leyenda:</span> Los días con colores más intensos tienen mayores gastos.
+          <span className="font-medium">Leyenda:</span> Los días con colores más intensos tienen mayores gastos. Puedes seleccionar diferentes meses y años en los dropdowns de arriba.
         </p>
       </div>
 
@@ -107,7 +118,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
             {dailyExpenses.map((day, idx) => (
               <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  {new Date(day.date).toLocaleDateString('es-DO', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  {new Date(day.date + 'T00:00:00').toLocaleDateString('es-DO', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </span>
                 <span className="font-semibold text-orange-600 dark:text-orange-400">
                   RD$ {day.total.toFixed(2)}

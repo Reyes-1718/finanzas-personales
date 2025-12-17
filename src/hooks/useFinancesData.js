@@ -430,29 +430,44 @@ export const useFinancesData = () => {
    * Obtener estadísticas avanzadas
    */
   const getAdvancedStats = (transactions) => {
-    if (transactions.length === 0) {
+    // Filtrar solo gastos (no incluir ingresos)
+    const expenses = transactions.filter(t => t.type.includes('gasto'));
+    
+    if (expenses.length === 0) {
       return {
         averagePerCategory: {},
         largestExpenses: [],
         topCategories: [],
         dailyAverage: 0,
-        transactionCount: 0
+        transactionCount: 0,
+        totalIncome: 0,
+        totalExpenses: 0
       };
     }
+
+    // Calcular ingresos y gastos por separado
+    const totalIncome = transactions
+      .filter(t => t.type === 'ingreso')
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+    
+    const totalExpenses = expenses.reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
 
     const stats = {
       averagePerCategory: {},
       largestExpenses: [],
       topCategories: [],
       dailyAverage: 0,
-      transactionCount: transactions.length
+      transactionCount: expenses.length,
+      totalIncome: totalIncome,
+      totalExpenses: totalExpenses,
+      balance: totalIncome - totalExpenses
     };
 
-    // Calcular promedio por categoría
+    // Calcular promedio por categoría (solo gastos)
     const categoryTotals = {};
     const categoryCounts = {};
 
-    transactions.forEach(t => {
+    expenses.forEach(t => {
       const amountInDOP = convertToDOP(t.amount, t.currency);
       categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amountInDOP;
       categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
@@ -463,7 +478,7 @@ export const useFinancesData = () => {
     });
 
     // Top 5 gastos más grandes
-    stats.largestExpenses = transactions
+    stats.largestExpenses = expenses
       .map(t => ({
         ...t,
         amountInDOP: convertToDOP(t.amount, t.currency)
@@ -471,16 +486,15 @@ export const useFinancesData = () => {
       .sort((a, b) => b.amountInDOP - a.amountInDOP)
       .slice(0, 5);
 
-    // Top categorías
+    // Top categorías (solo gastos)
     stats.topCategories = Object.entries(categoryTotals)
       .map(([cat, total]) => ({ category: cat, total }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
 
-    // Promedio diario
-    const uniqueDates = new Set(transactions.map(t => t.date)).size;
-    const totalAmount = transactions.reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
-    stats.dailyAverage = totalAmount / (uniqueDates || 1);
+    // Promedio diario (solo gastos)
+    const uniqueDates = new Set(expenses.map(t => t.date)).size;
+    stats.dailyAverage = totalExpenses / (uniqueDates || 1);
 
     return stats;
   };

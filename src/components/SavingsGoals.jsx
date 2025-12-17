@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 
-const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress }) => {
+const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress, calculatePeriodicSavings, monthlyIncome = 0 }) => {
+  // Diagnóstico
+  console.log('SavingsGoals recibió props:', { goals, addGoal, updateGoal, deleteGoal, getGoalProgress, calculatePeriodicSavings, monthlyIncome });
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     targetAmount: '',
     currentAmount: '',
     category: '',
-    deadline: ''
+    deadline: '',
+    monthlyIncome: monthlyIncome || ''
   });
 
   const handleChange = (e) => {
@@ -32,7 +36,8 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
       targetAmount: parseFloat(formData.targetAmount),
       currentAmount: parseFloat(formData.currentAmount) || 0,
       category: formData.category,
-      deadline: formData.deadline
+      deadline: formData.deadline,
+      monthlyIncome: parseFloat(formData.monthlyIncome) || monthlyIncome
     });
 
     setFormData({
@@ -41,7 +46,8 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
       targetAmount: '',
       currentAmount: '',
       category: '',
-      deadline: ''
+      deadline: '',
+      monthlyIncome: monthlyIncome || ''
     });
   };
 
@@ -79,7 +85,7 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Monto Objetivo
+                Monto Objetivo (RD$)
               </label>
               <input
                 type="number"
@@ -94,7 +100,7 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Monto Actual
+                Monto Actual (RD$)
               </label>
               <input
                 type="number"
@@ -105,6 +111,24 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Ingreso Mensual (RD$) <span className="text-blue-600">*</span>
+              </label>
+              <input
+                type="number"
+                name="monthlyIncome"
+                value={formData.monthlyIncome}
+                onChange={handleChange}
+                placeholder={monthlyIncome > 0 ? monthlyIncome.toFixed(2) : "Ingreso mensual"}
+                step="0.01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Usado para calcular el ahorro mensual necesario
+              </p>
             </div>
 
             <div>
@@ -151,10 +175,12 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
           <div className="space-y-4">
             {activeGoals.map(goal => {
               const progress = getGoalProgress(goal.id, goal.currentAmount);
+              const savingsCalc = goal.savingsCalculation;
+              
               return (
                 <div key={goal.id} className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
                   <div className="flex justify-between items-start mb-2">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold text-gray-900 dark:text-white">{goal.name}</h4>
                       {goal.description && (
                         <p className="text-sm text-gray-600 dark:text-gray-400">{goal.description}</p>
@@ -162,7 +188,7 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
                     </div>
                     <button
                       onClick={() => deleteGoal(goal.id)}
-                      className="text-red-600 hover:text-red-700 font-medium"
+                      className="text-red-600 hover:text-red-700 font-medium ml-2"
                     >
                       ✕
                     </button>
@@ -187,6 +213,22 @@ const SavingsGoals = ({ goals, addGoal, updateGoal, deleteGoal, getGoalProgress 
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                       Fecha límite: {new Date(goal.deadline).toLocaleDateString('es-DO')}
                     </p>
+                  )}
+
+                  {savingsCalc && (
+                    <div className={`mb-3 p-3 rounded-lg ${savingsCalc.isAchievable ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                      <p className={`text-sm font-semibold ${savingsCalc.isAchievable ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                        💰 Ahorro necesario: RD$ {savingsCalc.monthlySavings.toFixed(2)}/mes
+                      </p>
+                      <p className={`text-xs ${savingsCalc.isAchievable ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {savingsCalc.percentageOfIncome.toFixed(1)}% de tu ingreso mensual • {savingsCalc.monthsRemaining} meses
+                      </p>
+                      {!savingsCalc.isAchievable && (
+                        <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                          ⚠️ Esta meta requiere más del 100% de tu ingreso. Considera aumentar el plazo o reducir el objetivo.
+                        </p>
+                      )}
+                    </div>
                   )}
 
                   <button

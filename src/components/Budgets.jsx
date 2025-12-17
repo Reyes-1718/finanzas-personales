@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 
-const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, transactions, month, year, categories }) => {
+const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, transactions, month, year, categories, monthlyIncome = 0, getAutoBudgetAmount, getSuggestedBudgets, applyAutoBudgets }) => {
+    // Diagnóstico
+    console.log('Budgets recibió props:', { budgets, setBudget, getAllBudgetsForMonth, deleteBudget, categories, monthlyIncome, getAutoBudgetAmount });
+  
   const [formData, setFormData] = useState({
     category: '',
     amount: ''
@@ -24,6 +27,18 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
     setFormData({ category: '', amount: '' });
   };
 
+  const handleApplyAutoBudget = () => {
+    if (!monthlyIncome) {
+      alert('No se puede calcular presupuesto automático sin ingreso mensual');
+      return;
+    }
+    
+    if (window.confirm(`¿Aplicar presupuesto automático del 40% del ingreso (RD$ ${getAutoBudgetAmount(monthlyIncome).toFixed(2)}) distribuido entre ${categories.length} categorías?`)) {
+      applyAutoBudgets(monthlyIncome, categories, month, year);
+      alert('Presupuestos automáticos aplicados correctamente');
+    }
+  };
+
   const monthBudgets = getAllBudgetsForMonth(month, year);
   
   const getSpentByCategory = (category) => {
@@ -39,6 +54,24 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Presupuesto Mensual</h2>
+        
+        {/* Información de presupuesto automático */}
+        {monthlyIncome > 0 && (
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+            <div className="flex justify-between items-center mb-2">
+              <div>
+                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">💡 Presupuesto Automático Disponible</p>
+                <p className="text-xs text-blue-700 dark:text-blue-300">40% de tu ingreso mensual = RD$ {getAutoBudgetAmount(monthlyIncome).toFixed(2)}</p>
+              </div>
+              <button
+                onClick={handleApplyAutoBudget}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm"
+              >
+                Aplicar Automático
+              </button>
+            </div>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -61,7 +94,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Monto Presupuestado
+                Monto Presupuestado (RD$)
               </label>
               <input
                 type="number"
@@ -77,9 +110,9 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded-lg transition"
           >
-            Asignar Presupuesto
+            Asignar Presupuesto Manual
           </button>
         </form>
 

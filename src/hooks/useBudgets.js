@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook para manejar presupuestos mensuales por categoría
+ * Soporta presupuesto automático del 40% del ingreso mensual
  */
 export const useBudgets = () => {
   const [budgets, setBudgets] = useState([]);
@@ -54,11 +55,59 @@ export const useBudgets = () => {
     setBudgets(budgets.filter(b => b.key !== key));
   };
 
+  /**
+   * Calcular presupuesto total recomendado (40% del ingreso mensual)
+   * @param {number} monthlyIncome - Ingreso mensual total
+   * @returns {number} - 40% del ingreso mensual
+   */
+  const getAutoBudgetAmount = (monthlyIncome) => {
+    if (!monthlyIncome) return 0;
+    return Math.round((monthlyIncome * 0.40) * 100) / 100;
+  };
+
+  /**
+   * Sugerir presupuesto automático del 40% del ingreso
+   * Distribuido entre las categorías de gasto
+   * @param {number} monthlyIncome - Ingreso mensual total
+   * @param {Array} expenseCategories - Lista de categorías de gasto
+   * @returns {Array} - Array de presupuestos sugeridos
+   */
+  const getSuggestedBudgets = (monthlyIncome, expenseCategories = []) => {
+    if (!monthlyIncome || expenseCategories.length === 0) return [];
+
+    const totalBudget = getAutoBudgetAmount(monthlyIncome);
+    const perCategory = totalBudget / expenseCategories.length;
+
+    return expenseCategories.map(category => ({
+      category,
+      suggestedAmount: Math.round(perCategory * 100) / 100,
+      percentage: 40 / expenseCategories.length
+    }));
+  };
+
+  /**
+   * Aplicar presupuestos automáticos para el mes/año especificado
+   * @param {number} monthlyIncome - Ingreso mensual total
+   * @param {Array} expenseCategories - Lista de categorías de gasto
+   * @param {number} month - Mes (0-11)
+   * @param {number} year - Año
+   */
+  const applyAutoBudgets = (monthlyIncome, expenseCategories = [], month, year) => {
+    const suggested = getSuggestedBudgets(monthlyIncome, expenseCategories);
+    
+    suggested.forEach(({ category, suggestedAmount }) => {
+      setBudget(category, suggestedAmount, month, year);
+    });
+  };
+
   return {
     budgets,
     setBudget,
     getBudget,
     getAllBudgetsForMonth,
-    deleteBudget
+    deleteBudget,
+    getAutoBudgetAmount,
+    getSuggestedBudgets,
+    applyAutoBudgets
   };
 };

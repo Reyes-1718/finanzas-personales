@@ -6,6 +6,12 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
   ];
 
+  // Función para formatear moneda con miles separadores
+  const formatCurrency = (amount, currency = 'RD$') => {
+    const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return `${currency} ${formatted}`;
+  };
+
   const monthTransactions = transactions.filter(t => {
     const date = new Date(t.date);
     return date.getFullYear() === year && date.getMonth() === month;
@@ -40,19 +46,20 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
     csv += `Mes: ${months[month]} ${year}\n`;
     csv += `Fecha de Generación: ${new Date().toLocaleString('es-DO')}\n`;
     csv += '\n=== RESUMEN ===\n';
-    csv += `Total Ingresos,RD$ ${totalIncome.toFixed(2)}\n`;
-    csv += `Total Gastos Fijos,RD$ ${totalFixed.toFixed(2)}\n`;
-    csv += `Total Gastos Variables,RD$ ${totalVariable.toFixed(2)}\n`;
-    csv += `Balance,RD$ ${balance.toFixed(2)}\n`;
+    csv += `Total Ingresos,${formatCurrency(totalIncome)}\n`;
+    csv += `Total Gastos Fijos,${formatCurrency(totalFixed)}\n`;
+    csv += `Total Gastos Variables,${formatCurrency(totalVariable)}\n`;
+    csv += `Balance,${formatCurrency(balance)}\n`;
     csv += '\n=== PROYECCIÓN SIGUIENTE MES ===\n';
-    csv += `Gastos Fijos Proyectados,RD$ ${projection.fixedExpenses.toFixed(2)}\n`;
-    csv += `Promedio Gastos Variables,RD$ ${projection.avgVariableExpenses.toFixed(2)}\n`;
-    csv += `Total Proyectado,RD$ ${projection.totalProjection.toFixed(2)}\n`;
+    csv += `Gastos Fijos Proyectados,${formatCurrency(projection.fixedExpenses)}\n`;
+    csv += `Promedio Gastos Variables,${formatCurrency(projection.avgVariableExpenses)}\n`;
+    csv += `Total Proyectado,${formatCurrency(projection.totalProjection)}\n`;
     csv += '\n=== TRANSACCIONES ===\n';
     csv += 'Fecha,Tipo,Categoría,Descripción,Monto,Moneda,Método Pago\n';
     
     monthTransactions.forEach(t => {
-      csv += `${t.date},${t.type},${t.category},${t.description || '-'},${t.amount},${t.currency},${t.paymentMethod || '-'}\n`;
+      const amountFormatted = formatCurrency(parseFloat(t.amount), t.currency === 'USD' ? 'US$' : 'RD$');
+      csv += `${t.date},${t.type},${t.category},${t.description || '-'},${amountFormatted},${t.currency},${t.paymentMethod || '-'}\n`;
     });
 
     return csv;
@@ -60,7 +67,7 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
 
   const downloadCSV = () => {
     const csv = generateCSVReport();
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -77,15 +84,36 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
       año: year,
       fechaGeneración: new Date().toISOString(),
       resumen: {
-        totalIngresos: totalIncome,
-        totalGastosFijos: totalFixed,
-        totalGastosVariables: totalVariable,
-        balance: balance
+        totalIngresos: {
+          valor: totalIncome,
+          formateado: formatCurrency(totalIncome)
+        },
+        totalGastosFijos: {
+          valor: totalFixed,
+          formateado: formatCurrency(totalFixed)
+        },
+        totalGastosVariables: {
+          valor: totalVariable,
+          formateado: formatCurrency(totalVariable)
+        },
+        balance: {
+          valor: balance,
+          formateado: formatCurrency(balance)
+        }
       },
       proyección: {
-        gastosFijosProyectados: projection.fixedExpenses,
-        promedioGastosVariables: projection.avgVariableExpenses,
-        totalProyectado: projection.totalProjection
+        gastosFijosProyectados: {
+          valor: projection.fixedExpenses,
+          formateado: formatCurrency(projection.fixedExpenses)
+        },
+        promedioGastosVariables: {
+          valor: projection.avgVariableExpenses,
+          formateado: formatCurrency(projection.avgVariableExpenses)
+        },
+        totalProyectado: {
+          valor: projection.totalProjection,
+          formateado: formatCurrency(projection.totalProjection)
+        }
       },
       transacciones: monthTransactions
     };
@@ -112,13 +140,13 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Ingresos</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">RD$ {totalIncome.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(totalIncome)}</p>
           </div>
 
           <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Gastos</p>
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              RD$ {(totalFixed + totalVariable).toFixed(2)}
+              {formatCurrency(totalFixed + totalVariable)}
             </p>
           </div>
 
@@ -131,14 +159,14 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
             <p className={`text-2xl font-bold ${
               balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-yellow-600 dark:text-yellow-400'
             }`}>
-              RD$ {balance.toFixed(2)}
+              {formatCurrency(balance)}
             </p>
           </div>
 
           <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Proyección Próx. Mes</p>
             <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              RD$ {projection.totalProjection.toFixed(2)}
+              {formatCurrency(projection.totalProjection)}
             </p>
           </div>
         </div>
@@ -147,12 +175,12 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Gastos Fijos</p>
-            <p className="text-xl font-semibold text-gray-900 dark:text-white">RD$ {totalFixed.toFixed(2)}</p>
+            <p className="text-xl font-semibold text-gray-900 dark:text-white">{formatCurrency(totalFixed)}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Gastos Variables</p>
-            <p className="text-xl font-semibold text-gray-900 dark:text-white">RD$ {totalVariable.toFixed(2)}</p>
+            <p className="text-xl font-semibold text-gray-900 dark:text-white">{formatCurrency(totalVariable)}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -201,7 +229,7 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
                     <td className="px-4 py-2 text-gray-900 dark:text-white">{t.category}</td>
                     <td className="px-4 py-2 text-gray-600 dark:text-gray-400 truncate">{t.description}</td>
                     <td className="px-4 py-2 text-right font-semibold text-gray-900 dark:text-white">
-                      {t.currency === 'USD' ? 'US$' : 'RD$'} {t.amount}
+                      {formatCurrency(parseFloat(t.amount), t.currency === 'USD' ? 'US$' : 'RD$')}
                     </td>
                   </tr>
                 ))}

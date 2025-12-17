@@ -6,6 +6,7 @@ import { useBudgets } from './hooks/useBudgets';
 import { useAlerts } from './hooks/useAlerts';
 import Dashboard from './components/Dashboard';
 import TransactionForm from './components/TransactionForm';
+import DailyExpenses from './components/DailyExpenses';
 import Projection from './components/Projection';
 import BackupRestore from './components/BackupRestore';
 import ExchangeRateWidget from './components/ExchangeRateWidget';
@@ -46,6 +47,10 @@ function App() {
       year: now.getFullYear()
     };
   });
+
+  // Estado para sidebar colapsable
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Tema y hooks adicionales
   const { isDark, toggleTheme } = useTheme();
@@ -106,6 +111,21 @@ function App() {
     }
   }, [loading]);
 
+  // Detectar cambios de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false); // Cerrar sidebar en móviles
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Llamar una vez al montar
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
@@ -119,6 +139,7 @@ function App() {
 
   const monthlyTransactions = getTransactionsByMonth(selectedDate.year, selectedDate.month);
   const stats = getAdvancedStats(monthlyTransactions);
+  const monthlyIncome = (stats && typeof stats.totalIncome === 'number') ? stats.totalIncome : 0;
   const allCategories = [...data.incomeCategories, ...data.expenseCategories];
 
   const handleSearch = (criteria) => {
@@ -137,10 +158,29 @@ function App() {
     <div className={isDark ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
         <div className="flex h-screen overflow-hidden">
+          {/* Botón Hamburguesa */}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
+            title="Menú"
+          >
+            {sidebarOpen ? '✕' : '☰'}
+          </button>
+
+          {/* Overlay para móviles */}
+          {isMobile && sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+
           {/* Sidebar */}
-          <div className="w-64 bg-gray-900 dark:bg-gray-950 text-white p-6 overflow-y-auto">
+          <div className={`${
+            sidebarOpen ? 'w-64' : 'w-0'
+          } bg-gray-900 dark:bg-gray-950 text-white p-6 overflow-y-auto transition-all duration-300 ease-in-out fixed md:static h-full z-40 md:z-0 md:w-64`}>
             <div className="flex justify-between items-center mb-8">
-              <h1 className="text-2xl font-bold">💰 Finanzas</h1>
+              <h1 className="text-2xl font-bold whitespace-nowrap">💰 Finanzas</h1>
               <button
                 onClick={toggleTheme}
                 className="text-yellow-400 hover:text-yellow-500 text-xl"
@@ -152,17 +192,18 @@ function App() {
 
             {/* Navegación Principal */}
             <nav className="space-y-2 mb-8">
-              <NavButton icon="📊" label="Dashboard" isActive={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setSearchResults(null); }} />
-              <NavButton icon="💳" label="Transacciones" isActive={activeTab === 'transactions'} onClick={() => setActiveTab('transactions')} />
-              <NavButton icon="📈" label="Proyección" isActive={activeTab === 'projection'} onClick={() => setActiveTab('projection')} />
-              <NavButton icon="💚" label="Metas" isActive={activeTab === 'goals'} onClick={() => setActiveTab('goals')} />
-              <NavButton icon="📊" label="Presupuestos" isActive={activeTab === 'budgets'} onClick={() => setActiveTab('budgets')} />
-              <NavButton icon="📈" label="Estadísticas" isActive={activeTab === 'stats'} onClick={() => setActiveTab('stats')} />
-              <NavButton icon="📅" label="Calendario" isActive={activeTab === 'calendar'} onClick={() => setActiveTab('calendar')} />
-              <NavButton icon="📋" label="Reportes" isActive={activeTab === 'reports'} onClick={() => setActiveTab('reports')} />
-              <NavButton icon="🔔" label="Alertas" isActive={activeTab === 'alerts'} onClick={() => setActiveTab('alerts')} />
-              <NavButton icon="🔍" label="Buscar" isActive={activeTab === 'search'} onClick={() => setActiveTab('search')} />
-              <NavButton icon="💾" label="Backup" isActive={activeTab === 'backup'} onClick={() => setActiveTab('backup')} />
+              <NavButton icon="📊" label="Dashboard" isActive={activeTab === 'dashboard'} onClick={() => { setActiveTab('dashboard'); setSearchResults(null); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="💳" label="Transacciones" isActive={activeTab === 'transactions'} onClick={() => { setActiveTab('transactions'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="⚡" label="Gastos Diarios" isActive={activeTab === 'daily'} onClick={() => { setActiveTab('daily'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="📈" label="Proyección" isActive={activeTab === 'projection'} onClick={() => { setActiveTab('projection'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="💚" label="Metas" isActive={activeTab === 'goals'} onClick={() => { setActiveTab('goals'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="📊" label="Presupuestos" isActive={activeTab === 'budgets'} onClick={() => { setActiveTab('budgets'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="📈" label="Estadísticas" isActive={activeTab === 'stats'} onClick={() => { setActiveTab('stats'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="📅" label="Calendario" isActive={activeTab === 'calendar'} onClick={() => { setActiveTab('calendar'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="📋" label="Reportes" isActive={activeTab === 'reports'} onClick={() => { setActiveTab('reports'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="🔔" label="Alertas" isActive={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="🔍" label="Buscar" isActive={activeTab === 'search'} onClick={() => { setActiveTab('search'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="💾" label="Backup" isActive={activeTab === 'backup'} onClick={() => { setActiveTab('backup'); if (isMobile) setSidebarOpen(false); }} />
             </nav>
 
             {/* Widget de Tasa de Cambio */}
@@ -171,7 +212,7 @@ function App() {
 
           {/* Contenido Principal */}
           <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
-            <div className="p-8">
+            <div className="p-4 md:p-8 mt-12 md:mt-0">
               {/* Selector de Mes/Año */}
               {!['backup', 'search'].includes(activeTab) && (
                 <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -213,6 +254,14 @@ function App() {
                 </div>
               )}
 
+              {activeTab === 'daily' && (
+                <DailyExpenses
+                  onAddTransaction={handleAddTransaction}
+                  expenseCategories={data.expenseCategories}
+                  addExpenseCategory={addExpenseCategory}
+                />
+              )}
+
               {activeTab === 'projection' && (
                 <Projection 
                   calculateProjection={calculateProjection} 
@@ -228,6 +277,8 @@ function App() {
                   updateGoal={savingsGoals.updateGoal}
                   deleteGoal={savingsGoals.deleteGoal}
                   getGoalProgress={savingsGoals.getGoalProgress}
+                  calculatePeriodicSavings={savingsGoals.calculatePeriodicSavings}
+                  monthlyIncome={monthlyIncome}
                 />
               )}
 
@@ -241,6 +292,10 @@ function App() {
                   month={selectedDate.month}
                   year={selectedDate.year}
                   categories={allCategories}
+                  monthlyIncome={monthlyIncome}
+                  getAutoBudgetAmount={budgets.getAutoBudgetAmount}
+                  getSuggestedBudgets={budgets.getSuggestedBudgets}
+                  applyAutoBudgets={budgets.applyAutoBudgets}
                 />
               )}
 
