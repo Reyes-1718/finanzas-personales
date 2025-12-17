@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6B7280'];
@@ -7,10 +7,22 @@ const Dashboard = ({
   transactions, 
   selectedMonth, 
   selectedYear, 
-  calculateBalance 
+  calculateBalance,
+  deleteTransaction
 }) => {
   const [sortBy, setSortBy] = useState('date'); // 'date', 'amount', 'category'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+
+  // Función para convertir USD a DOP (memoizada)
+  const convertToDOP = useCallback((amount, currency) => {
+    const rate = localStorage.getItem('exchange_rate_usd_dop') 
+      ? parseFloat(localStorage.getItem('exchange_rate_usd_dop')) 
+      : 63.52;
+    if (currency === 'USD') {
+      return parseFloat(amount) * rate;
+    }
+    return parseFloat(amount);
+  }, []);
 
   // Filtrar transacciones del mes seleccionado
   const monthTransactions = useMemo(() => {
@@ -35,18 +47,18 @@ const Dashboard = ({
   // Calcular balance del mes
   const balance = useMemo(() => calculateBalance(monthTransactions), [monthTransactions, calculateBalance]);
 
-  // Calcular ingresos y gastos totales
+  // Calcular ingresos y gastos totales (convertidos a DOP)
   const { totalIncome, totalExpenses } = useMemo(() => {
     const income = monthTransactions
       .filter(t => t.type === 'ingreso')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
     
     const expenses = monthTransactions
       .filter(t => t.type !== 'ingreso')
-      .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
     
     return { totalIncome: income, totalExpenses: expenses };
-  }, [monthTransactions]);
+  }, [monthTransactions, convertToDOP]);
 
   // Preparar datos para el gráfico de pastel (gastos por categoría)
   const expensesByCategory = useMemo(() => {
@@ -55,14 +67,15 @@ const Dashboard = ({
     monthTransactions
       .filter(t => t.type !== 'ingreso')
       .forEach(t => {
-        categoryMap[t.category] = (categoryMap[t.category] || 0) + parseFloat(t.amount);
+        const amountInDOP = convertToDOP(t.amount, t.currency);
+        categoryMap[t.category] = (categoryMap[t.category] || 0) + amountInDOP;
       });
     
     return Object.entries(categoryMap).map(([name, value]) => ({
       name,
       value: parseFloat(value.toFixed(2))
     }));
-  }, [monthTransactions]);
+  }, [monthTransactions, convertToDOP]);
 
   const handleSort = (column) => {
     if (sortBy === column) {
@@ -179,6 +192,9 @@ const Dashboard = ({
                   >
                     Monto {sortBy === 'amount' && (sortOrder === 'asc' ? '↑' : '↓')}
                   </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -209,6 +225,18 @@ const Dashboard = ({
                     }`}>
                       {transaction.type === 'ingreso' ? '+' : '-'}
                       {formatCurrency(transaction.amount, transaction.currency)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                      <button
+                        onClick={() => {
+                          if (window.confirm('¿Estás seguro de que deseas eliminar esta transacción?')) {
+                            deleteTransaction(transaction.id);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                      >
+                        🗑️ Eliminar
+                      </button>
                     </td>
                   </tr>
                 ))}

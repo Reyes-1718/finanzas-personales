@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Projection = ({ calculateProjection, data }) => {
+const Projection = ({ calculateProjection, data, deleteTransaction }) => {
   const projection = calculateProjection();
   
   const formatCurrency = (amount) => {
@@ -105,6 +105,28 @@ const Projection = ({ calculateProjection, data }) => {
                             maximumFractionDigits: 2
                           }).format(item.amount)}
                         </span>
+                        <button
+                          onClick={() => {
+                            // Encontrar y eliminar la transacción correspondiente
+                            const now = new Date();
+                            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+                            const matching = data.transactions.find(t => {
+                              const tDate = new Date(t.date);
+                              return t.category === category && 
+                                     t.currency === item.currency && 
+                                     t.type === 'gasto-fijo' && 
+                                     tDate >= threeMonthsAgo &&
+                                     Math.abs(parseFloat(t.amount) - item.amount) < 0.01;
+                            });
+                            if (matching && window.confirm('¿Eliminar esta transacción?')) {
+                              deleteTransaction(matching.id);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 ml-2"
+                          title="Eliminar"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     ))}
                   </div>

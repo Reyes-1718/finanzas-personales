@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
  */
 export const useAlerts = () => {
   const [alerts, setAlerts] = useState([]);
+  const [settings, setSettings] = useState(null);
   const STORAGE_KEY = 'alert_settings';
 
   const DEFAULT_SETTINGS = {
@@ -14,19 +15,24 @@ export const useAlerts = () => {
     enableHighExpenseAlert: true
   };
 
-  // Cargar configuración desde localStorage
+  // Cargar configuración desde localStorage al iniciar
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) {
+      if (stored) {
+        setSettings(JSON.parse(stored));
+      } else {
+        setSettings(DEFAULT_SETTINGS);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SETTINGS));
       }
     } catch (error) {
       console.error('Error al cargar configuración de alertas:', error);
+      setSettings(DEFAULT_SETTINGS);
     }
   }, []);
 
   const getSettings = () => {
+    if (settings) return settings;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       return stored ? JSON.parse(stored) : DEFAULT_SETTINGS;
@@ -35,8 +41,9 @@ export const useAlerts = () => {
     }
   };
 
-  const updateSettings = (settings) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  const updateSettings = (newSettings) => {
+    setSettings(newSettings);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
   };
 
   const checkDailyLimit = (dailyTotal, settings) => {

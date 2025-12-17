@@ -191,7 +191,13 @@ function App() {
 
               {/* Contenido por Pestaña */}
               {activeTab === 'dashboard' && (
-                <Dashboard transactions={data.transactions} selectedMonth={selectedDate.month} selectedYear={selectedDate.year} calculateBalance={calculateBalance} />
+                <Dashboard 
+                  transactions={data.transactions} 
+                  selectedMonth={selectedDate.month} 
+                  selectedYear={selectedDate.year} 
+                  calculateBalance={calculateBalance}
+                  deleteTransaction={deleteTransaction}
+                />
               )}
 
               {activeTab === 'transactions' && (
@@ -208,7 +214,11 @@ function App() {
               )}
 
               {activeTab === 'projection' && (
-                <Projection calculateProjection={calculateProjection} data={data} />
+                <Projection 
+                  calculateProjection={calculateProjection} 
+                  data={data}
+                  deleteTransaction={deleteTransaction}
+                />
               )}
 
               {activeTab === 'goals' && (
