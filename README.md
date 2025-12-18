@@ -16,6 +16,7 @@
 - [🚀 Inicio Rápido](#inicio-rápido)
 - [📦 Instalación Completa](#instalación-completa)
 - [🌐 Despliegue en GitHub Pages](#despliegue-en-github-pages)
+- [🧪 Pruebas Automatizadas](#pruebas-automatizadas)
 - [📱 Guía de Uso](#guía-de-uso)
 - [🆕 Características Nuevas](#características-nuevas)
 - [🐛 Solución de Problemas](#solución-de-problemas)
@@ -192,6 +193,23 @@ npm run deploy
 4. **Save**
 
 Tu app estará en: `https://tu-usuario.github.io/nombre-repositorio/`
+
+---
+
+## 🧪 Pruebas Automatizadas
+
+- **Stack de pruebas**: Playwright E2E sin headless en local; en CI se ejecuta en headless.
+- **Ejecución local** (instala navegadores de Playwright solo la primera vez):
+
+```bash
+npm install
+npx playwright install --with-deps
+npm run test:e2e
+```
+
+- **CI/CD**: Cada push/PR ejecuta build, `npm audit --omit=dev` y E2E en [.github/workflows/ci.yml](.github/workflows/ci.yml). Lighthouse corre aparte sobre el build en [.github/workflows/lighthouse.yml](.github/workflows/lighthouse.yml).
+- **Escenarios cubiertos actualmente**: carga de Dashboard y navegación móvil con FAB (abre menú, va a Transacciones y cierra) en [tests/app.spec.js](tests/app.spec.js).
+- **Entrada de datos para depurar**: los elementos del FAB exponen `data-testid` (`fab-button`, `fab-item-<tab>`) para localizar acciones en las pruebas.
 
 ---
 
@@ -582,7 +600,7 @@ MIT - Libre para usar, modificar y distribuir.
 
 ---
 
-**Última actualización**: 16 de diciembre de 2025  
+**Última actualización**: 18 de diciembre de 2025  
 **Versión**: 1.0.0  
 **Estado**: ✅ Producción
 

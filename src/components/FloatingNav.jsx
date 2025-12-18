@@ -56,6 +56,7 @@ const FloatingNav = ({ activeTab, onTabChange, isMobile }) => {
                 return (
                   <button
                     key={item.key}
+                    data-testid={`fab-item-${item.key}`}
                     onClick={() => handleNavClick(item.key)}
                     className={`absolute w-16 h-16 rounded-full flex flex-col items-center justify-center text-[11px] leading-tight font-semibold transition-all duration-300 transform hover:scale-110 ${
                       isActive
@@ -85,6 +86,7 @@ const FloatingNav = ({ activeTab, onTabChange, isMobile }) => {
 
       {/* Botón principal flotante */}
       <button
+        data-testid="fab-button"
         onClick={() => setIsOpen(!isOpen)}
         className={`relative w-16 h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 pointer-events-auto z-50 ${
           isOpen ? 'ring-4 ring-blue-400' : ''
