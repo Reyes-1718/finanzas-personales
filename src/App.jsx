@@ -17,6 +17,7 @@ import SearchFilter from './components/SearchFilter';
 import Calendar from './components/Calendar';
 import ReportPDF from './components/ReportPDF';
 import Alerts from './components/Alerts';
+import FloatingNav from './components/FloatingNav';
 
 function App() {
   const {
@@ -158,27 +159,9 @@ function App() {
     <div className={isDark ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
         <div className="flex h-screen overflow-hidden">
-          {/* Botón Hamburguesa */}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="md:hidden fixed top-4 left-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg"
-            title="Menú"
-          >
-            {sidebarOpen ? '✕' : '☰'}
-          </button>
-
-          {/* Overlay para móviles */}
-          {isMobile && sidebarOpen && (
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-          )}
-
-          {/* Sidebar */}
-          <div className={`${
-            sidebarOpen ? 'w-64' : 'w-0'
-          } bg-gray-900 dark:bg-gray-950 text-white p-6 overflow-y-auto transition-all duration-300 ease-in-out fixed md:static h-full z-40 md:z-0 md:w-64`}>
+          {/* Sidebar - Solo visible en Desktop */}
+          {!isMobile && (
+            <div className="w-64 bg-gray-900 dark:bg-gray-950 text-white p-6 overflow-y-auto h-full z-0">
             <div className="flex justify-between items-center mb-8">
               <h1 className="text-2xl font-bold whitespace-nowrap">💰 Finanzas</h1>
               <button
@@ -208,11 +191,12 @@ function App() {
 
             {/* Widget de Tasa de Cambio */}
             <ExchangeRateWidget />
-          </div>
+            </div>
+          )}
 
           {/* Contenido Principal */}
           <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
-            <div className="p-4 md:p-8 mt-12 md:mt-0">
+            <div className="p-4 md:p-8 mt-0">
               {/* Selector de Mes/Año */}
               {!['backup', 'search'].includes(activeTab) && (
                 <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -356,6 +340,8 @@ function App() {
             </div>
           </div>
         </div>
+        {/* Widget Flotante para Móviles */}
+        <FloatingNav activeTab={activeTab} onTabChange={setActiveTab} isMobile={isMobile} />
       </div>
     </div>
   );
