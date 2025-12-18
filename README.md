@@ -46,6 +46,7 @@
 
 ### 🎨 Experiencia de Usuario
 - **🎨 Diseño Responsivo**: Interfaz adaptable a cualquier dispositivo (móvil, tablet, desktop)
+- **📱 Navegación móvil**: Sidebar oculto en móvil + menú flotante circular (FAB) con todas las pestañas
 - **🌓 Tema Oscuro**: Modo oscuro completo con toggle dinámico
 - **⚡ Rendimiento**: Interfaz rápida y optimizada con Vite
 - **🔄 Actualizaciones en Tiempo Real**: Cambios inmediatos sin recargar página
@@ -196,6 +197,41 @@ Tu app estará en: `https://tu-usuario.github.io/nombre-repositorio/`
 
 ## 📱 Guía de Uso
 
+### 📱 Navegación en móvil (FAB - Floating Action Button)
+
+**¿Cómo funciona?**
+- En móvil el sidebar no se muestra; usa el botón flotante (☰) en la esquina inferior derecha
+- Toca ☰ para abrir el menú circular con todas las pestañas
+- Al elegir una opción, el menú se cierra y te lleva al tab; la vista hace scroll al inicio para ver el contenido
+- En desktop el sidebar sigue visible y el FAB no aparece
+
+**Visualización del FAB en móvil:**
+
+```
+┌─────────────────────────────┐
+│                             │
+│   Tu Contenido Financiero   │
+│                             │
+│                             │
+│                             │
+│                             │
+│                             │
+│  📊 💚 📅 🔔           ┌───────────────┐
+│  📈 📋 🔍 ⚡      →   │   Dashboard   │
+│         [☰]               │ Transacciones │
+│                           │  Gastos Diarios│
+│                           │   Proyección   │
+│                           │    Metas       │
+│                           │ Presupuestos   │
+│                           │ Estadísticas   │
+│                           │   Calendario   │
+│                           └───────────────┘
+```
+
+- **Botón cerrado**: (☰) en esquina inferior derecha
+- **Botón abierto**: (✕) y muestra círculo con 12 opciones centradas
+- **Seleccionar**: Toca opción → menú se cierra → navega al tab → scroll al inicio
+
 ### 🏠 Dashboard - Panel Principal
 
 **¿Qué ves?**
@@ -326,11 +362,11 @@ Visualiza tus gastos de forma calendárica.
 
 ## 🆕 Características Nuevas (Última Sesión)
 
-### 1. Sidebar Colapsable (Móviles)
-- En móviles, el sidebar se oculta por defecto
-- Botón hamburguesa (☰) para abrir/cerrar
-- Se cierra automáticamente al hacer click en navegación
-- Overlay semitransparente para mejor UX
+### 1. Navegación móvil con menú flotante
+- Sidebar oculto en móviles; todo se navega con un menú flotante circular (FAB)
+- Botón ☰ en esquina inferior derecha abre el menú; al elegir opción se cierra solo
+- Ítems ampliados y centrados, con etiquetas completas y scroll-to-top para ver el contenido
+- En desktop se mantiene el sidebar tradicional
 
 ### 2. Gastos Diarios Rápidos
 - Formulario simplificado sin campos innecesarios
