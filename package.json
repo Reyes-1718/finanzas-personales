@@ -11,7 +11,14 @@
     "deploy": "gh-pages -d dist",
     "audit": "npm audit",
     "audit:fix": "npm audit fix",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:firefox": "playwright test --project=firefox",
+    "test:e2e:webkit": "playwright test --project=webkit",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report test-results",
+    "test:e2e:debug": "playwright test --debug --project=chromium",
+    "test:e2e:headed": "playwright test --headed --project=chromium"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",

@@ -208,6 +208,9 @@ npm run test:e2e
 ```
 
 - CI/CD: ver configuración en [.github/workflows/ci.yml](.github/workflows/ci.yml) y Lighthouse en [.github/workflows/lighthouse.yml](.github/workflows/lighthouse.yml).
+   - CI rápido: Chromium por defecto en CI.
+   - Cobertura completa: matriz Chromium/Firefox/WebKit solo en `main` o manual (`workflow_dispatch`).
+   - Config: [.github/workflows/ci.yml](.github/workflows/ci.yml) y Lighthouse en [.github/workflows/lighthouse.yml](.github/workflows/lighthouse.yml).
 
 Documentación de testing (canónica):
 - Guía completa: [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md)
@@ -482,6 +485,14 @@ npm run predeploy    # Build + auditoría npm
 npm run deploy       # Deploy a GitHub Pages
 npm run audit        # Auditoría de seguridad
 npm run audit:fix    # Intento de fix automático
+npm run test:e2e     # E2E en Chromium/Firefox/WebKit
+npm run test:e2e:chromium # E2E solo en Chromium
+npm run test:e2e:firefox  # E2E solo en Firefox
+npm run test:e2e:webkit   # E2E solo en WebKit
+npm run test:e2e:ui       # UI de Playwright (modo interactivo)
+npm run test:e2e:report   # Abrir reporte HTML en test-results
+npm run test:e2e:debug    # Depuración en Chromium
+npm run test:e2e:headed   # Chromium con ventana visible
 ```
 
 ---
