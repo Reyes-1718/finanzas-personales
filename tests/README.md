@@ -2,6 +2,10 @@
 
 Guía rápida para ejecutar la suite E2E con Playwright. Para detalles avanzados usa la guía canónica.
 
+## ⚙️ Requisitos
+- **Node.js**: 20.19+ o 22.12+ (requerido por Vite 7.3.0)
+- **npm**: 9+ o superior
+
 ## 🚀 Comandos básicos
 ```bash
 # Instalar (primera vez)
