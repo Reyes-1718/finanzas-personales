@@ -3,6 +3,8 @@
  * Funciones reutilizables para todas las suites de tests
  */
 
+import { expect } from '@playwright/test';
+
 export const helpers = {
   
   /**

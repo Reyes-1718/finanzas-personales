@@ -16,12 +16,8 @@ test.describe('TEMA - Switching', () => {
 
   test('should display theme toggle button', async ({ page }) => {
     // Debe haber botón para cambiar tema en navbar/header
-    const themeBtn = page.locator('button[title*="Tema"], button[title*="Dark"], button[title*="Light"]');
-    if (!await themeBtn.isVisible()) {
-      // O buscar por ícono
-      const darkModeIcon = page.locator('[class*="moon"], [class*="sun"]');
-      await expect(darkModeIcon).toBeVisible();
-    }
+    const themeBtn = page.locator('button[title="Cambiar tema"], button[aria-label*="tema"], [class*="theme-toggle"]');
+    await expect(themeBtn).toBeVisible();
   });
 
   test('should toggle between light and dark theme', async ({ page }) => {
@@ -30,7 +26,7 @@ test.describe('TEMA - Switching', () => {
     const initialClass = await htmlElement.getAttribute('class');
     
     // Click en botón de tema
-    const themeBtn = page.locator('button[title*="Tema"], button[aria-label*="Tema"], [class*="theme-toggle"]');
+      const themeBtn = page.locator('button[title="Cambiar tema"], button[aria-label*="tema"], [class*="theme-toggle"]');
     if (await themeBtn.isVisible()) {
       await themeBtn.click();
       await page.waitForTimeout(300);
@@ -44,9 +40,9 @@ test.describe('TEMA - Switching', () => {
   test('should apply dark class to html element in dark mode', async ({ page }) => {
     // Cambiar a dark mode
     const themeBtn = page.locator('button[title*="Tema"]');
-    if (await themeBtn.isVisible()) {
+      if (await themeBtn.isVisible()) {
       // Hacer clicks hasta estar en dark mode
-      await themeBtn.click();
+        await themeBtn.click();
       await page.waitForTimeout(300);
 
       const htmlElement = page.locator('html');
@@ -66,7 +62,7 @@ test.describe('TEMA - Switching', () => {
 
     // Cambiar tema
     const themeBtn = page.locator('button[title*="Tema"]');
-    if (await themeBtn.isVisible()) {
+      if (await themeBtn.isVisible()) {
       await themeBtn.click();
       await page.waitForTimeout(300);
 
@@ -77,19 +73,20 @@ test.describe('TEMA - Switching', () => {
   });
 
   test('should update text colors on theme change', async ({ page }) => {
-    // Obtener color de texto inicial
-    const header = page.locator('header, [class*="navbar"]');
-    const initialColor = await header.evaluate((el) => window.getComputedStyle(el).color);
+    // Usar un heading visible y estable en la UI
+    const heading = page.getByRole('heading', { level: 1 });
+    await expect(heading).toBeVisible();
+    const initialColor = await heading.evaluate((el) => window.getComputedStyle(el).color);
 
     // Cambiar tema
-    const themeBtn = page.locator('button[title*="Tema"]');
-    if (await themeBtn.isVisible()) {
+    const themeBtn = page.locator('button[title*="Tema"], button[aria-label*="Tema"], [class*="theme-toggle"]');
+      if (await themeBtn.isVisible()) {
       await themeBtn.click();
       await page.waitForTimeout(300);
 
-      // Color debe ser diferente
-      const newColor = await header.evaluate((el) => window.getComputedStyle(el).color);
-      // Puede cambiar o no según implementación
+      // Color de texto debe cambiar entre modos
+      const newColor = await heading.evaluate((el) => window.getComputedStyle(el).color);
+      expect(newColor).not.toBe(initialColor);
     }
   });
 
@@ -99,7 +96,7 @@ test.describe('TEMA - Switching', () => {
 
     // Cambiar a dark mode
     const themeBtn = page.locator('button[title*="Tema"]');
-    if (await themeBtn.isVisible()) {
+      if (await themeBtn.isVisible()) {
       await themeBtn.click();
       await page.waitForTimeout(500);
 
@@ -255,13 +252,20 @@ test.describe('TEMA - Sincronización', () => {
     await page.setViewportSize(DESKTOP_VIEWPORT);
   });
 
-  test('should sync theme with system preference if enabled', async ({ page, context }) => {
-    // Si está habilitada sincronización con sistema
-    const prefersDark = await context.evaluateHandle(() => {
+  test('should sync theme with system preference if enabled', async ({ page }) => {
+    // Consulta preferencia del sistema desde la página
+    const prefersDark = await page.evaluate(() => {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     });
 
-    // La aplicación podría usar esto como preferencia por defecto
+    // Emula explicitamente el esquema de color y verifica efecto visual
+    await page.emulateMedia({ colorScheme: prefersDark ? 'dark' : 'light' });
+    const htmlElement = page.locator('html');
+    const classList = await htmlElement.getAttribute('class');
+    // Si la app sincroniza con sistema, en dark debería incluir "dark"
+    if (prefersDark && classList) {
+      expect(classList.includes('dark') || classList === 'dark').toBeTruthy();
+    }
   });
 
   test('should update when system theme changes', async ({ page }) => {

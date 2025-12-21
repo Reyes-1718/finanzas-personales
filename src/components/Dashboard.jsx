@@ -27,8 +27,9 @@ const Dashboard = ({
   // Filtrar transacciones del mes seleccionado
   const monthTransactions = useMemo(() => {
     return transactions.filter(t => {
-      const date = new Date(t.date);
-      return date.getFullYear() === selectedYear && date.getMonth() === selectedMonth;
+      // Parsear fecha sin conversión de zona horaria
+      const [year, month, day] = t.date.split('-').map(Number);
+      return year === selectedYear && (month - 1) === selectedMonth;
     }).sort((a, b) => {
       let comparison = 0;
       

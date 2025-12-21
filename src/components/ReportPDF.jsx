@@ -1,4 +1,5 @@
 import React from 'react';
+import { getYearFromISODate, getMonthFromISODate } from '../utils/dateHelpers';
 
 const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProjection }) => {
   const months = [
@@ -13,8 +14,7 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
   };
 
   const monthTransactions = transactions.filter(t => {
-    const date = new Date(t.date);
-    return date.getFullYear() === year && date.getMonth() === month;
+    return getYearFromISODate(t.date) === year && getMonthFromISODate(t.date) === month;
   });
 
   const balance = calculateBalance(monthTransactions);

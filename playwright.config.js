@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 3 : undefined,
   reporter: [
     ['html', { outputFolder: 'test-results' }],
     ['junit', { outputFile: 'test-results/junit.xml' }],
@@ -15,9 +15,9 @@ export default defineConfig({
   ],
   use: {
     baseURL: 'http://127.0.0.1:4173/',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    trace: process.env.CI ? 'off' : 'on-first-retry',
+    screenshot: process.env.CI ? 'off' : 'only-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
   },
   projects: [
     {

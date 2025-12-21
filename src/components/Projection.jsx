@@ -1,4 +1,5 @@
 import React from 'react';
+import { parseLocalDate } from '../utils/dateHelpers';
 
 const Projection = ({ calculateProjection, data, deleteTransaction }) => {
   const projection = calculateProjection();
@@ -19,7 +20,7 @@ const Projection = ({ calculateProjection, data, deleteTransaction }) => {
     
     data.transactions
       .filter(t => {
-        const date = new Date(t.date);
+        const date = parseLocalDate(t.date);
         return t.type === 'gasto-fijo' && date >= threeMonthsAgo;
       })
       .forEach(t => {
