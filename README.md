@@ -16,7 +16,7 @@
 - [🚀 Inicio Rápido](#inicio-rápido)
 - [📦 Instalación Completa](#instalación-completa)
 - [🌐 Despliegue en GitHub Pages](#despliegue-en-github-pages)
-- [🧪 Pruebas Automatizadas](#pruebas-automatizadas)
+- [🧪 Pruebas Automatizadas (desactivadas)](#pruebas-automatizadas)
 - [📱 Guía de Uso](#guía-de-uso)
 - [🆕 Características Nuevas](#características-nuevas-última-sesión)
 - [🐛 Solución de Problemas](#solución-de-problemas)
@@ -198,25 +198,11 @@ Tu app estará en: `https://tu-usuario.github.io/nombre-repositorio/`
 
 ## 🧪 Pruebas Automatizadas
 
-- Framework: Playwright (E2E).
-- Ejecutar localmente (primera vez instalar navegadores):
+Actualmente no hay suite de pruebas automatizadas ni flujos de CI ejecutándose. Se eliminaron los tests de Playwright, la configuración asociada y los workflows de GitHub Actions, por lo que no se dispara ninguna ejecución de tests al instalar o desplegar.
 
-```bash
-npm install
-npx playwright install --with-deps
-npm run test:e2e
-```
-
-- CI/CD: ver configuración en [.github/workflows/ci.yml](.github/workflows/ci.yml) y Lighthouse en [.github/workflows/lighthouse.yml](.github/workflows/lighthouse.yml).
-   - CI rápido: Chromium por defecto en CI.
-   - Cobertura completa: matriz Chromium/Firefox/WebKit solo en `main` o manual (`workflow_dispatch`).
-   - Config: [.github/workflows/ci.yml](.github/workflows/ci.yml) y Lighthouse en [.github/workflows/lighthouse.yml](.github/workflows/lighthouse.yml).
-
-Documentación de testing (canónica):
-- Guía completa: [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md)
-- Resumen de implementación: [docs/testing/TESTING_SUMMARY.md](docs/testing/TESTING_SUMMARY.md)
-- Mapa de cobertura: [docs/testing/TEST_COVERAGE_MAP.md](docs/testing/TEST_COVERAGE_MAP.md)
-- Requerimientos QA: [docs/testing/PROMPT_TESTING_COMPLETO.md](docs/testing/PROMPT_TESTING_COMPLETO.md)
+- No existen scripts de npm para pruebas ni configuración de Playwright en el repositorio.
+- No hay carpetas `tests/` ni reportes `test-results/` presentes.
+- Si en el futuro necesitas reactivar las pruebas, instala `@playwright/test`, crea un nuevo `playwright.config.js`, restaura la carpeta de especificaciones y añade los workflows que necesites.
 
 ---
 
@@ -485,15 +471,9 @@ npm run predeploy    # Build + auditoría npm
 npm run deploy       # Deploy a GitHub Pages
 npm run audit        # Auditoría de seguridad
 npm run audit:fix    # Intento de fix automático
-npm run test:e2e     # E2E en Chromium/Firefox/WebKit
-npm run test:e2e:chromium # E2E solo en Chromium
-npm run test:e2e:firefox  # E2E solo en Firefox
-npm run test:e2e:webkit   # E2E solo en WebKit
-npm run test:e2e:ui       # UI de Playwright (modo interactivo)
-npm run test:e2e:report   # Abrir reporte HTML en test-results
-npm run test:e2e:debug    # Depuración en Chromium
-npm run test:e2e:headed   # Chromium con ventana visible
 ```
+
+Nota: no hay scripts de pruebas activos. Para reinstalar Playwright agrega `@playwright/test`, crea un `playwright.config.js`, añade la carpeta de especificaciones y (opcional) restaura workflows de CI.
 
 ---
 

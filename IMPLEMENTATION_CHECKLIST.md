@@ -1,17 +1,9 @@
-# IMPLEMENTATION_CHECKLIST.md (Deprecado)
+# IMPLEMENTATION_CHECKLIST.md
 
-Este documento era un checklist detallado de implementación de la suite E2E. Para evitar duplicación y mantener una fuente única de verdad, la información se consolidó en los siguientes documentos canónicos:
+La suite E2E y su documentación fueron eliminadas. Actualmente no hay pruebas automatizadas configuradas ni workflows de CI que las ejecuten.
 
-- Resumen de implementación: [docs/testing/TESTING_SUMMARY.md](docs/testing/TESTING_SUMMARY.md)
-- Guía completa de pruebas: [docs/testing/TESTING_GUIDE.md](docs/testing/TESTING_GUIDE.md)
-- Mapa de cobertura: [docs/testing/TEST_COVERAGE_MAP.md](docs/testing/TEST_COVERAGE_MAP.md)
+- No existe carpeta `tests/` ni configuración de Playwright.
+- No hay comandos npm relacionados con pruebas.
+- Los workflows de GitHub Actions dedicados a testing fueron retirados.
 
-Comandos rápidos:
-
-```bash
-npm run test:e2e
-npx playwright test --ui
-npx playwright show-report
-```
-
-Nota: si necesitas la versión previa de este checklist, consulta el historial de Git.
+Si necesitas reconstruir la suite, revisa el historial de Git para recuperar las especificaciones y crea una nueva configuración de Playwright y pipelines de CI según los requisitos del proyecto.
