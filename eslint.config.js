@@ -21,9 +21,36 @@ export default [
     },
   },
 
-  // 4. Configuración principal de React y Frontend
+  // 4. Configuración para archivos de Test (Playwright/Vitest)
   {
-    files: ["**/*.{js,mjs,cjs,jsx}"],
+    files: ["tests/**/*.{js,jsx}", "**/*.spec.{js,jsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        // Globals de Playwright
+        test: "readonly",
+        expect: "readonly",
+        page: "readonly",
+        browser: "readonly",
+        context: "readonly",
+        // Globals de Vitest (si lo usas)
+        describe: "readonly",
+        it: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
+        vi: "readonly",
+      },
+    },
+    rules: {
+      "no-unused-vars": "warn",
+    },
+  },
+
+  // 5. Configuración principal de React y Frontend
+  {
+    files: ["src/**/*.{js,jsx}", "**/*.{js,mjs,cjs,jsx}"],
     plugins: {
       react: pluginReact,
     },
