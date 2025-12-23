@@ -154,11 +154,13 @@ const TransactionForm = ({
             Monto
           </label>
           <input
-            type="text"
+            type="number"
             name="amount"
             value={formData.amount}
             onChange={handleChange}
             placeholder="0.00"
+            step="0.01"
+            min="0"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
           />
         </div>
