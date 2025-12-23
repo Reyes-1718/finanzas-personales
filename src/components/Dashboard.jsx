@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { parseLocalDate } from '../utils/dateHelpers';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6B7280'];
 
@@ -34,7 +35,7 @@ const Dashboard = ({
       let comparison = 0;
       
       if (sortBy === 'date') {
-        comparison = new Date(a.date) - new Date(b.date);
+        comparison = parseLocalDate(a.date) - parseLocalDate(b.date);
       } else if (sortBy === 'amount') {
         comparison = parseFloat(a.amount) - parseFloat(b.amount);
       } else if (sortBy === 'category') {
@@ -202,7 +203,7 @@ const Dashboard = ({
                 {monthTransactions.map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                      {new Date(transaction.date).toLocaleDateString('es-ES')}
+                      {parseLocalDate(transaction.date).toLocaleDateString('es-ES')}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                       {transaction.description}
