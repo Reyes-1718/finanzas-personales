@@ -15,12 +15,12 @@ const AdvancedStats = ({ stats, transactions }) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-green-50 dark:bg-green-900/20 rounded-lg shadow p-6 border border-green-200 dark:border-green-700">
           <h3 className="text-lg font-semibold mb-2 text-green-900 dark:text-green-100">Ingresos</h3>
-          <p className="text-3xl font-bold text-green-600">RD$ {stats.totalIncome?.toFixed(2) || '0.00'}</p>
+          <p className="text-3xl font-bold text-green-600">RD$ {(stats.totalIncome || 0).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg shadow p-6 border border-red-200 dark:border-red-700">
           <h3 className="text-lg font-semibold mb-2 text-red-900 dark:text-red-100">Gastos</h3>
-          <p className="text-3xl font-bold text-red-600">RD$ {stats.totalExpenses?.toFixed(2) || '0.00'}</p>
+          <p className="text-3xl font-bold text-red-600">RD$ {(stats.totalExpenses || 0).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         <div className={`rounded-lg shadow p-6 border-l-4 ${
@@ -30,7 +30,7 @@ const AdvancedStats = ({ stats, transactions }) => {
         }`}>
           <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Balance</h3>
           <p className={`text-3xl font-bold ${(stats.balance || 0) >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-            RD$ {stats.balance?.toFixed(2) || '0.00'}
+            RD$ {(stats.balance || 0).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       </div>
@@ -46,7 +46,7 @@ const AdvancedStats = ({ stats, transactions }) => {
                   <p className="font-medium text-gray-900 dark:text-white">{expense.category}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{expense.date}</p>
                 </div>
-                <span className="font-semibold text-red-600">RD$ {expense.amountInDOP.toFixed(2)}</span>
+                <span className="font-semibold text-red-600">RD$ {expense.amountInDOP.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             ))}
           </div>
@@ -61,7 +61,7 @@ const AdvancedStats = ({ stats, transactions }) => {
             {stats.topCategories.map((item, idx) => (
               <div key={idx} className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="font-medium text-gray-900 dark:text-white">{item.category}</p>
-                <span className="font-semibold text-blue-600">RD$ {item.total.toFixed(2)}</span>
+                <span className="font-semibold text-blue-600">RD$ {item.total.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             ))}
           </div>
@@ -72,7 +72,7 @@ const AdvancedStats = ({ stats, transactions }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Promedio Diario (Gastos)</h3>
-          <p className="text-3xl font-bold text-green-600">RD$ {stats.dailyAverage.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-green-600">RD$ {stats.dailyAverage.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -89,7 +89,7 @@ const AdvancedStats = ({ stats, transactions }) => {
             {Object.entries(stats.averagePerCategory).map(([cat, avg]) => (
               <div key={cat} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <p className="text-gray-900 dark:text-white">{cat}</p>
-                <span className="font-semibold text-gray-700 dark:text-gray-300">RD$ {avg.toFixed(2)}</span>
+                <span className="font-semibold text-gray-700 dark:text-gray-300">RD$ {avg.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             ))}
           </div>

@@ -61,7 +61,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
             <div className="flex justify-between items-center mb-2">
               <div>
                 <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">💡 Presupuesto Automático Disponible</p>
-                <p className="text-xs text-blue-700 dark:text-blue-300">40% de tu ingreso mensual = RD$ {getAutoBudgetAmount(monthlyIncome).toFixed(2)}</p>
+                <p className="text-xs text-blue-700 dark:text-blue-300">40% de tu ingreso mensual = RD$ {getAutoBudgetAmount(monthlyIncome).toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <button
                 onClick={handleApplyAutoBudget}
@@ -103,6 +103,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
                 onChange={handleChange}
                 placeholder="5000"
                 step="0.01"
+                min="0"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg"
               />
             </div>
@@ -141,7 +142,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
 
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-600 dark:text-gray-400">
-                      RD$ {spent.toFixed(2)} / RD$ {budget.amount.toFixed(2)}
+                      RD$ {spent.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / RD$ {budget.amount.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     <span className={`font-semibold ${isExceeded ? 'text-red-600' : 'text-green-600'}`}>
                       {Math.round(percentage)}%

@@ -94,7 +94,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
                 <span className="font-bold">{day}</span>
                 {expense > 0 && (
                   <span className="text-xs mt-1">
-                    RD${(expense / 1000).toFixed(0)}k
+                    RD$ {(expense / 1000).toFixed(0)}k
                   </span>
                 )}
               </div>
@@ -121,7 +121,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
                   {new Date(day.date + 'T00:00:00').toLocaleDateString('es-DO', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </span>
                 <span className="font-semibold text-orange-600 dark:text-orange-400">
-                  RD$ {day.total.toFixed(2)}
+                  RD$ {day.total.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
             ))}
