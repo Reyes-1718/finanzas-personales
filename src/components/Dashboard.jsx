@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { parseLocalDate } from '../utils/dateHelpers';
 
@@ -13,6 +13,17 @@ const Dashboard = ({
 }) => {
   const [sortBy, setSortBy] = useState('date'); // 'date', 'amount', 'category'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Detectar cambios de tamaño de pantalla
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Función para convertir USD a DOP (memoizada)
   const convertToDOP = useCallback((amount, currency) => {
@@ -132,15 +143,18 @@ const Dashboard = ({
       {expensesByCategory.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold dark:text-white mb-4">Distribución de Gastos por Categoría</h3>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={expensesByCategory.length > 4 ? 450 : 350}>
             <PieChart>
               <Pie
                 data={expensesByCategory}
                 cx="50%"
-                cy="50%"
+                cy="45%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                outerRadius={80}
+                label={isMobile 
+                  ? ({ percent }) => `${(percent * 100).toFixed(0)}%`
+                  : ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`
+                }
+                outerRadius={expensesByCategory.length > 6 ? 50 : 70}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -149,7 +163,12 @@ const Dashboard = ({
                 ))}
               </Pie>
               <Tooltip formatter={(value) => formatCurrency(value)} />
-              <Legend />
+              <Legend 
+                layout="horizontal"
+                verticalAlign="bottom" 
+                height={36}
+                wrapperStyle={{ paddingTop: '20px', fontSize: '12px', maxWidth: '100%' }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
