@@ -89,7 +89,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
                     : 'inherit',
                   color: expense > 0 && intensity > 50 ? 'white' : 'inherit'
                 }}
-                title={`${monthNames[month]} ${day}, ${year}: RD$ ${expense.toFixed(2)}`}
+                title={`${monthNames[month]} ${day}, ${year}: RD$ ${expense.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               >
                 <span className="font-bold">{day}</span>
                 {expense > 0 && (
