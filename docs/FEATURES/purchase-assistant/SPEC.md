@@ -1,3 +1,4 @@
+````markdown
 # 📊 Especificación Técnica: Asistente de Salud Financiera Preventiva
 
 **Versión**: 1.0.0  
@@ -551,3 +552,5 @@ meta = {
 **Documento creado por**: AI Assistant  
 **Última revisión**: 5 de enero de 2026  
 **Contacto**: Para preguntas, reportar bugs en GitHub Issues
+
+````

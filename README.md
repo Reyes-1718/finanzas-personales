@@ -632,5 +632,63 @@ MIT - Libre para usar, modificar y distribuir.
 Si tienes preguntas o sugerencias, abre un issue en GitHub.
 
 ---
+## 📚 Documentación Técnica Completa
 
+Esta carpeta contiene documentación profesional para desarrolladores, arquitectos y mantenedores a largo plazo.
+
+### 🎯 Selecciona según tu necesidad:
+
+#### 👨‍💻 **¿Eres Desarrollador Nuevo?**
+1. Lee [EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md) (15 min) → Entiendes qué hace todo
+2. Consulta [API_REFERENCE.md](docs/API_REFERENCE.md) → Sabes qué funciones usar
+3. Lee [SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) cuando necesites profundidad
+
+#### 👨‍🔬 **¿Necesitas Hacer Cambios Arquitectónicos?**
+1. [SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) (45 min) → Especificación completa
+2. [FLOW_DIAGRAMS.md](docs/FLOW_DIAGRAMS.md) → Visualiza los flujos
+3. [API_REFERENCE.md](docs/API_REFERENCE.md) → Valida interfaces públicas
+
+#### 🏗️ **¿Vas a Agregar una Feature Nueva?**
+1. Consulta [EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md) sección 13 → "Guía rápida"
+2. [SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) sección 5.14 → "Agregar nueva funcionalidad"
+3. [API_REFERENCE.md](docs/API_REFERENCE.md) → Usa hooks existentes
+
+#### 🎨 **¿Eres Diseñador o PM?**
+1. [EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md) → Resumen ejecutivo
+
+#### 👨‍💼 **¿Necesitas Presentar a Stakeholders?**
+1. [EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md) → Documento listo para ejecutivos
+2. [README.md](#características-principales) (este archivo) → Resumen visual de features
+
+### 📚 Tabla de Consulta Rápida
+
+| Si necesitas... | Archivo | Sección | Tiempo |
+|---|---|---|---|
+| Entender qué es el sistema | EXECUTIVE_SUMMARY | Todo | 15 min |
+| Especificación técnica completa | SYSTEM_ARCHITECTURE | Todo | 45 min |
+| Una función específica | API_REFERENCE | Buscar nombre | 2 min |
+| Ver flujos/diagramas | FLOW_DIAGRAMS | Relevante | 10 min |
+| Información de feature (Asistente) | FEATURES/purchase-assistant | Spec.md | 20 min |
+| Stack y dependencias | SYSTEM_ARCHITECTURE | Sección 2 | 5 min |
+| Cálculos financieros | SYSTEM_ARCHITECTURE | Sección 11 | 15 min |
+| Modelo de datos | SYSTEM_ARCHITECTURE | Sección 4 | 10 min |
+| Hooks personalizados | SYSTEM_ARCHITECTURE | Sección 8 | 20 min |
+| Componentes React | SYSTEM_ARCHITECTURE | Sección 9 | 25 min |
+| Seguridad/Encriptación | SYSTEM_ARCHITECTURE | Sección 10 | 10 min |
+| Checklist de producción | EXECUTIVE_SUMMARY | Sección 14 | 5 min |
+
+---
+
+## 📖 Documentos Disponibles en `/docs`
+
+- **SYSTEM_ARCHITECTURE.md** ⭐ — Especificación técnica completa (10,000+ palabras)
+- **EXECUTIVE_SUMMARY.md** — Resumen ejecutivo (4,000+ palabras)
+- **API_REFERENCE.md** — Referencia de funciones y hooks
+- **FLOW_DIAGRAMS.md** — Diagramas y flujos de datos
+- **FEATURES/** — Documentación de features específicas
+  - `purchase-assistant/SPEC.md` — Asistente de Salud Financiera (Fase 1)
+- **HISTORICAL/** — Archivos de referencia/deprecados
+  - Documentación de sesiones anteriores (consultar si es necesario)
+
+---
 Hecho con ❤️ usando React y Vite

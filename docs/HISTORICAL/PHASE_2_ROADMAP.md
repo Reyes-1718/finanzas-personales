@@ -1,3 +1,4 @@
+````markdown
 # 🎯 PRÓXIMOS PASOS: Fase 2 del Asistente de Salud Financiera
 
 **Documento**: Guía de Continuidad  
@@ -615,3 +616,5 @@ const handleConfirmPurchase = async () => {
 **Documento creado**: 5 de enero de 2026  
 **Estado**: Listo para Fase 2  
 **Contacto**: Para preguntas, revisar IMPLEMENTATION_SUMMARY.md
+
+````
