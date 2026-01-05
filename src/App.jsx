@@ -18,6 +18,7 @@ import Calendar from './components/Calendar';
 import ReportPDF from './components/ReportPDF';
 import Alerts from './components/Alerts';
 import FloatingNav from './components/FloatingNav';
+import PurchaseAssistantModal from './components/PurchaseAssistantModal';
 
 function App() {
   const {
@@ -52,6 +53,7 @@ function App() {
   // Estado para sidebar colapsable
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   // Tema y hooks adicionales
   const { isDark, toggleTheme } = useTheme();
@@ -340,6 +342,41 @@ function App() {
             </div>
           </div>
         </div>
+        {/* Modal del Asistente de Compras */}
+        <PurchaseAssistantModal
+          isOpen={showPurchaseModal}
+          onClose={() => setShowPurchaseModal(false)}
+          transactions={data.transactions}
+          savingsGoals={savingsGoals.goals}
+          monthlyIncome={monthlyIncome}
+          currentBalance={calculateBalance(data.transactions)}
+          darkMode={isDark}
+        />
+
+        {/* Botón Flotante para Asistente (Móvil) */}
+        {isMobile && (
+          <button
+            onClick={() => setShowPurchaseModal(true)}
+            className="fixed bottom-24 right-6 z-39 w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg flex items-center justify-center transition transform hover:scale-110 active:scale-95"
+            title="Asistente de Compras"
+          >
+            🛍️
+          </button>
+        )}
+
+        {/* Botón en Sidebar (Desktop) */}
+        {!isMobile && (
+          <div className="fixed bottom-6 left-6 z-40">
+            <button
+              onClick={() => setShowPurchaseModal(true)}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95"
+              title="Asistente de Compras"
+            >
+              🛍️ Compra Segura
+            </button>
+          </div>
+        )}
+
         {/* Widget Flotante para Móviles */}
         <FloatingNav activeTab={activeTab} onTabChange={setActiveTab} isMobile={isMobile} />
       </div>
