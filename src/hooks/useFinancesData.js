@@ -69,11 +69,18 @@ export const useFinancesData = () => {
       const decrypted = decryptData(storedData);
 
       if (decrypted) {
+        // Merge de categorías: combina viejas + nuevas, eliminando duplicados
+        const mergedIncomeCategories = [
+          ...new Set([...initialData.incomeCategories, ...(decrypted.incomeCategories || [])])
+        ];
+        const mergedExpenseCategories = [
+          ...new Set([...initialData.expenseCategories, ...(decrypted.expenseCategories || [])])
+        ];      
         setData({
           ...initialData,
           ...decrypted,
-          incomeCategories: decrypted.incomeCategories || initialData.incomeCategories,
-          expenseCategories: decrypted.expenseCategories || initialData.expenseCategories
+          incomeCategories: mergedIncomeCategories,
+          expenseCategories: mergedExpenseCategories
         });
       }
     } catch (error) {
