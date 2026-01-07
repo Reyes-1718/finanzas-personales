@@ -147,9 +147,13 @@ Sistema de gestión financiera personal web basado en React que permite a los us
   date: "2024-01-04",                     // Formato YYYY-MM-DD
   incomeType: "sueldo" | "extra",         // Solo para ingresos
   paymentMethod: "efectivo" | "tarjeta" | "transferencia" | "cheque",
+  exchangeRate: 63.52,                    // Tasa de cambio grabada en el momento de creación (si USD)
   isRecurring: false                      // Flag para identificar transacciones recurrentes
 }
 ```
+
+**📌 Nota sobre Moneda y Tasa de Cambio:**  
+El campo `currency` indica la moneda de registro, y `exchangeRate` graba la tasa de cambio en el momento de creación para garantizar inmutabilidad histórica. Para entender completamente cómo funciona el sistema bimoneda (DOP/USD), incluyendo la regla de inmutabilidad de tasas, consulta [BUSINESS_RULES/BIMONEDA_SYSTEM.md](../BUSINESS_RULES/BIMONEDA_SYSTEM.md).
 
 ### 2. Estructura de Transacción Recurrente
 ```javascript

@@ -672,6 +672,8 @@ Esta carpeta contiene documentación profesional para desarrolladores, arquitect
 | Stack y dependencias | SYSTEM_ARCHITECTURE | Sección 2 | 5 min |
 | Cálculos financieros | SYSTEM_ARCHITECTURE | Sección 11 | 15 min |
 | Modelo de datos | SYSTEM_ARCHITECTURE | Sección 4 | 10 min |
+| Sistema bimoneda (reglas) | BUSINESS_RULES/BIMONEDA_SYSTEM | Todo | 15 min |
+| Sistema bimoneda (implementación) | TECHNICAL/BIMONEDA_IMPLEMENTATION | Todo | 20 min |
 | Hooks personalizados | SYSTEM_ARCHITECTURE | Sección 8 | 20 min |
 | Componentes React | SYSTEM_ARCHITECTURE | Sección 9 | 25 min |
 | Seguridad/Encriptación | SYSTEM_ARCHITECTURE | Sección 10 | 10 min |
