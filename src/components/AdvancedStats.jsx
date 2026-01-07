@@ -40,15 +40,26 @@ const AdvancedStats = ({ stats, transactions }) => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Top 5 Gastos Más Grandes</h3>
           <div className="space-y-2">
-            {stats.largestExpenses.map((expense, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">{expense.category}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{expense.date}</p>
+            {stats.largestExpenses.map((expense, idx) => {
+              const rate = expense.exchangeRate || 63.52;
+              const amountUSD = expense.currency === 'USD' ? expense.amount : null;
+              
+              return (
+                <div key={idx} className="flex justify-between items-start p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">{expense.category}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{expense.date}</p>
+                    {expense.currency === 'USD' && (
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <span className="inline-block mr-3">💵 {amountUSD.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
+                        <span>@ {rate.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="font-semibold text-red-600">RD$ {expense.amountInDOP.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
-                <span className="font-semibold text-red-600">RD$ {expense.amountInDOP.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -58,12 +69,34 @@ const AdvancedStats = ({ stats, transactions }) => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Categorías con Más Gasto</h3>
           <div className="space-y-2">
-            {stats.topCategories.map((item, idx) => (
-              <div key={idx} className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="font-medium text-gray-900 dark:text-white">{item.category}</p>
-                <span className="font-semibold text-blue-600">RD$ {item.total.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            ))}
+            {stats.topCategories.map((item, idx) => {
+              const categoryTransactions = stats.categoryDetails && stats.categoryDetails[item.category];
+              const usdTotal = categoryTransactions?.usdTotal || 0;
+              const dopTotal = categoryTransactions?.dopTotal || 0;
+              const hasUSD = usdTotal > 0;
+              const lastDate = categoryTransactions?.lastUSDTransaction;
+              const lastRate = categoryTransactions?.lastUSDRate;
+              
+              return (
+                <div key={idx} className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">{item.category}</p>
+                      {hasUSD && lastDate && (
+                        <>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{lastDate}</p>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            <span>💵 {usdTotal.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
+                            <span className="ml-2">@ {lastRate.toFixed(2)}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <span className="font-semibold text-blue-600">RD$ {item.total.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -86,12 +119,33 @@ const AdvancedStats = ({ stats, transactions }) => {
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Promedio por Categoría de Gasto</h3>
           <div className="space-y-2">
-            {Object.entries(stats.averagePerCategory).map(([cat, avg]) => (
-              <div key={cat} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p className="text-gray-900 dark:text-white">{cat}</p>
-                <span className="font-semibold text-gray-700 dark:text-gray-300">RD$ {avg.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              </div>
-            ))}
+            {Object.entries(stats.averagePerCategory).map(([cat, avg]) => {
+              const categoryDetails = stats.categoryDetails && stats.categoryDetails[cat];
+              const hasUSD = categoryDetails && categoryDetails.usdTransactions > 0;
+              const avgUSD = categoryDetails && categoryDetails.avgUSD ? categoryDetails.avgUSD : 0;
+              const lastDate = categoryDetails?.lastUSDTransaction;
+              const lastRate = categoryDetails?.lastUSDRate;
+              
+              return (
+                <div key={cat} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-gray-900 dark:text-white font-medium">{cat}</p>
+                      {hasUSD && lastDate && (
+                        <>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{lastDate}</p>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            <span>💵 {avgUSD.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
+                            <span className="ml-2">@ {lastRate.toFixed(2)}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">RD$ {avg.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

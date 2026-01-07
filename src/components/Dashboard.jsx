@@ -26,10 +26,10 @@ const Dashboard = ({
   }, []);
 
   // Función para convertir USD a DOP (memoizada)
-  const convertToDOP = useCallback((amount, currency) => {
-    const rate = localStorage.getItem('exchange_rate_usd_dop') 
+  const convertToDOP = useCallback((amount, currency, exchangeRate = null) => {
+    const rate = exchangeRate !== null ? exchangeRate : (localStorage.getItem('exchange_rate_usd_dop') 
       ? parseFloat(localStorage.getItem('exchange_rate_usd_dop')) 
-      : 63.52;
+      : 63.52);
     if (currency === 'USD') {
       return parseFloat(amount) * rate;
     }
@@ -64,11 +64,11 @@ const Dashboard = ({
   const { totalIncome, totalExpenses } = useMemo(() => {
     const income = monthTransactions
       .filter(t => t.type === 'ingreso')
-      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
     
     const expenses = monthTransactions
       .filter(t => t.type !== 'ingreso')
-      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
     
     return { totalIncome: income, totalExpenses: expenses };
   }, [monthTransactions, convertToDOP]);
@@ -80,7 +80,7 @@ const Dashboard = ({
     monthTransactions
       .filter(t => t.type !== 'ingreso')
       .forEach(t => {
-        const amountInDOP = convertToDOP(t.amount, t.currency);
+        const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
         categoryMap[t.category] = (categoryMap[t.category] || 0) + amountInDOP;
       });
     

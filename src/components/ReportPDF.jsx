@@ -55,11 +55,15 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
     csv += `Promedio Gastos Variables,${formatCurrency(projection.avgVariableExpenses)}\n`;
     csv += `Total Proyectado,${formatCurrency(projection.totalProjection)}\n`;
     csv += '\n=== TRANSACCIONES ===\n';
-    csv += 'Fecha,Tipo,Categoría,Descripción,Monto,Moneda,Método Pago\n';
+    csv += 'Fecha,Tipo,Categoría,Descripción,Monto DOP,Monto Original,Moneda,Tasa de Cambio,Método Pago\n';
     
     monthTransactions.forEach(t => {
-      const amountFormatted = formatCurrency(parseFloat(t.amount), t.currency === 'USD' ? 'US$' : 'RD$');
-      csv += `${t.date},${t.type},${t.category},${t.description || '-'},${amountFormatted},${t.currency},${t.paymentMethod || '-'}\n`;
+      const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
+      const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+      const tasa = t.currency === 'USD' ? rate.toFixed(2) : '-';
+      const montoOriginal = t.currency === 'USD' ? parseFloat(t.amount).toFixed(2) : '-';
+      
+      csv += `${t.date},${t.type},${t.category},${t.description || '-'},${amountInDOP.toFixed(2)},${montoOriginal},${t.currency},${tasa},${t.paymentMethod || '-'}\n`;
     });
 
     return csv;
@@ -115,7 +119,30 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
           formateado: formatCurrency(projection.totalProjection)
         }
       },
-      transacciones: monthTransactions
+      transacciones: monthTransactions.map(t => {
+        const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
+        const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+        
+        return {
+          fecha: t.date,
+          tipo: t.type,
+          categoría: t.category,
+          descripción: t.description || '-',
+          montoEnDOP: {
+            valor: amountInDOP,
+            formateado: formatCurrency(amountInDOP)
+          },
+          ...(t.currency === 'USD' && {
+            montoOriginalUSD: {
+              valor: parseFloat(t.amount),
+              formateado: formatCurrency(parseFloat(t.amount), 'US$')
+            },
+            tasaDeCambio: rate
+          }),
+          moneda: t.currency,
+          metodoPago: t.paymentMethod || '-'
+        };
+      })
     };
 
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
@@ -222,17 +249,30 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
                 </tr>
               </thead>
               <tbody>
-                {monthTransactions.slice(0, 10).map((t, idx) => (
-                  <tr key={idx} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{t.date}</td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{t.type}</td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{t.category}</td>
-                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400 truncate">{t.description}</td>
-                    <td className="px-4 py-2 text-right font-semibold text-gray-900 dark:text-white">
-                      {formatCurrency(parseFloat(t.amount), t.currency === 'USD' ? 'US$' : 'RD$')}
-                    </td>
-                  </tr>
-                ))}
+                {monthTransactions.slice(0, 10).map((t, idx) => {
+                  const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
+                  const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+                  
+                  return (
+                    <tr key={idx} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="px-4 py-2 text-gray-900 dark:text-white">{t.date}</td>
+                      <td className="px-4 py-2 text-gray-900 dark:text-white">{t.type}</td>
+                      <td className="px-4 py-2 text-gray-900 dark:text-white">{t.category}</td>
+                      <td className="px-4 py-2 text-gray-600 dark:text-gray-400 truncate">{t.description}</td>
+                      <td className="px-4 py-2 text-right">
+                        <div className="font-semibold text-gray-900 dark:text-white">
+                          {formatCurrency(amountInDOP, 'RD$')}
+                        </div>
+                        {t.currency === 'USD' && (
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            <div>{formatCurrency(parseFloat(t.amount), 'US$')}</div>
+                            <div>Tasa: {rate.toFixed(2)}</div>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

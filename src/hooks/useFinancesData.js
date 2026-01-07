@@ -106,12 +106,15 @@ export const useFinancesData = () => {
 
   /**
    * Agregar una nueva transacción
+   * Captura automáticamente la tasa de cambio actual al momento de creación
    */
   const addTransaction = (transaction) => {
+    const currentRate = getExchangeRate();
     const newTransaction = {
       id: Date.now().toString(),
       ...transaction,
-      date: transaction.date || new Date().toISOString().split('T')[0]
+      date: transaction.date || new Date().toISOString().split('T')[0],
+      exchangeRate: transaction.exchangeRate || currentRate
     };
     
     setData(prev => ({
@@ -236,9 +239,10 @@ export const useFinancesData = () => {
 
   /**
    * Convertir monto a DOP según la moneda
+   * Si se proporciona una tasa específica (de transacción), usa esa; de lo contrario, usa la tasa global actual
    */
-  const convertToDOP = (amount, currency) => {
-    const rate = getExchangeRate();
+  const convertToDOP = (amount, currency, exchangeRate = null) => {
+    const rate = exchangeRate !== null ? exchangeRate : getExchangeRate();
     if (currency === 'USD') {
       return parseFloat(amount) * rate;
     }
@@ -247,10 +251,11 @@ export const useFinancesData = () => {
 
   /**
    * Calcular balance (ingresos - gastos) con conversión de monedas
+   * Usa la tasa de cambio guardada en cada transacción
    */
   const calculateBalance = (transactions) => {
     return transactions.reduce((acc, t) => {
-      const amountInDOP = convertToDOP(t.amount, t.currency);
+      const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
       if (t.type === 'ingreso') {
         return acc + amountInDOP;
       } else {
@@ -274,19 +279,19 @@ export const useFinancesData = () => {
       return date >= threeMonthsAgo;
     });
 
-    // Gastos fijos (convertidos a DOP)
+    // Gastos fijos (convertidos a DOP usando tasa de cada transacción)
     const fixedExpenses = recentTransactions
       .filter(t => t.type === 'gasto-fijo')
-      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
-    // Gastos variables por mes (convertidos a DOP)
+    // Gastos variables por mes (convertidos a DOP usando tasa de cada transacción)
     const variableExpensesByMonth = {};
     recentTransactions
       .filter(t => t.type === 'gasto-variable')
       .forEach(t => {
         const date = new Date(t.date);
         const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-        const amountInDOP = convertToDOP(t.amount, t.currency);
+        const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
         variableExpensesByMonth[monthKey] = (variableExpensesByMonth[monthKey] || 0) + amountInDOP;
       });
 
@@ -452,12 +457,12 @@ export const useFinancesData = () => {
       };
     }
 
-    // Calcular ingresos y gastos por separado
+    // Calcular ingresos y gastos por separado (usando tasa de cada transacción)
     const totalIncome = transactions
       .filter(t => t.type === 'ingreso')
-      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+      .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
     
-    const totalExpenses = expenses.reduce((sum, t) => sum + convertToDOP(t.amount, t.currency), 0);
+    const totalExpenses = expenses.reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
     const stats = {
       averagePerCategory: {},
@@ -473,22 +478,53 @@ export const useFinancesData = () => {
     // Calcular promedio por categoría (solo gastos)
     const categoryTotals = {};
     const categoryCounts = {};
+    const categoryDetails = {}; // Para detalles de USD
 
     expenses.forEach(t => {
-      const amountInDOP = convertToDOP(t.amount, t.currency);
+      const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
       categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amountInDOP;
       categoryCounts[t.category] = (categoryCounts[t.category] || 0) + 1;
+      
+      // Detallar USD por categoría
+      if (!categoryDetails[t.category]) {
+        categoryDetails[t.category] = {
+          usdTotal: 0,
+          dopTotal: 0,
+          usdTransactions: 0,
+          dopTransactions: 0,
+          lastUSDTransaction: null, // Para guardar fecha y tasa de última transacción USD
+          lastUSDRate: null
+        };
+      }
+      
+      if (t.currency === 'USD') {
+        categoryDetails[t.category].usdTotal += parseFloat(t.amount);
+        categoryDetails[t.category].usdTransactions += 1;
+        // Guardar última transacción USD de esta categoría
+        categoryDetails[t.category].lastUSDTransaction = t.date;
+        categoryDetails[t.category].lastUSDRate = t.exchangeRate || getExchangeRate();
+      } else {
+        categoryDetails[t.category].dopTotal += parseFloat(t.amount);
+        categoryDetails[t.category].dopTransactions += 1;
+      }
     });
 
     Object.keys(categoryTotals).forEach(cat => {
       stats.averagePerCategory[cat] = categoryTotals[cat] / categoryCounts[cat];
+      
+      // Calcular promedio USD si existen transacciones en USD
+      if (categoryDetails[cat].usdTransactions > 0) {
+        categoryDetails[cat].avgUSD = categoryDetails[cat].usdTotal / categoryDetails[cat].usdTransactions;
+      }
     });
+    
+    stats.categoryDetails = categoryDetails;
 
-    // Top 5 gastos más grandes
+    // Top 5 gastos más grandes (usando tasa de cada transacción)
     stats.largestExpenses = expenses
       .map(t => ({
         ...t,
-        amountInDOP: convertToDOP(t.amount, t.currency)
+        amountInDOP: convertToDOP(t.amount, t.currency, t.exchangeRate)
       }))
       .sort((a, b) => b.amountInDOP - a.amountInDOP)
       .slice(0, 5);
@@ -508,6 +544,7 @@ export const useFinancesData = () => {
 
   /**
    * Obtener gastos por día para el mes
+   * Usa la tasa de cambio guardada en cada transacción
    */
   const getDailyExpenses = (year, month) => {
     const monthTransactions = getTransactionsByMonth(year, month)
@@ -518,7 +555,7 @@ export const useFinancesData = () => {
       if (!dailyMap[t.date]) {
         dailyMap[t.date] = 0;
       }
-      dailyMap[t.date] += convertToDOP(t.amount, t.currency);
+      dailyMap[t.date] += convertToDOP(t.amount, t.currency, t.exchangeRate);
     });
 
     return Object.entries(dailyMap).map(([date, total]) => ({

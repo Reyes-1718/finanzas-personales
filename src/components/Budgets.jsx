@@ -45,7 +45,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
     return transactions
       .filter(t => t.category === category && t.type.includes('gasto'))
       .reduce((sum, t) => {
-        const rate = parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
+        const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
         return sum + (t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount));
       }, 0);
   };
