@@ -32,6 +32,7 @@ export default function PurchaseAssistantModal({
   });
   const [result, setResult] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState(null);
+  const [errors, setErrors] = useState({});
 
   // Calcular métricas
   const metrics = useMemo(() => {
@@ -56,24 +57,39 @@ export default function PurchaseAssistantModal({
       ...prev,
       [field]: value
     }));
+    // Limpiar error del campo
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
   };
 
   const handleCalculate = () => {
-    const amount = parseFloat(formData.amount);
+    const newErrors = {};
     
-    if (!formData.productName.trim() || !amount || amount <= 0) {
-      alert('Por favor completa los campos requeridos');
+    if (!formData.productName.trim()) {
+      newErrors.productName = 'El nombre del producto es requerido';
+    }
+    
+    const amount = parseFloat(formData.amount);
+    if (!amount || amount <= 0) {
+      newErrors.amount = 'Ingresa un monto válido mayor a 0';
+    }
+    
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
       return;
     }
 
-    if (!metrics.monthlyIncome || metrics.monthlyIncome <= 0) {
-      alert('Necesitamos tu ingreso mensual para continuar');
-      return;
-    }
+    // Permitir cálculo incluso sin income, pero mostrar warning
+    const effectiveIncome = metrics.monthlyIncome || 10000; // Valor por defecto para demo
 
     const impact = calculatePurchaseImpact(
       amount,
-      metrics.monthlyIncome,
+      effectiveIncome,
       metrics.currentBalance,
       metrics.currentDebtPayments,
       metrics.fixedExpenses,
@@ -83,6 +99,16 @@ export default function PurchaseAssistantModal({
       6, // emergency fund months target
       metrics.avgFixedExpenses
     );
+
+    // Agregar warning si no hay income configurado
+    if (!metrics.monthlyIncome || metrics.monthlyIncome <= 0) {
+      impact.alerts.unshift({
+        type: 'warning',
+        message: 'Los cálculos usan un ingreso mensual estimado de RD$ 10,000. Configura tu ingreso real para resultados precisos.',
+        code: 'ESTIMATED_INCOME'
+      });
+      if (impact.criticalityLevel < 1) impact.criticalityLevel = 1;
+    }
 
     setResult(impact);
     setStep(2);
@@ -167,8 +193,11 @@ export default function PurchaseAssistantModal({
                     value={formData.productName}
                     onChange={(e) => handleFormChange('productName', e.target.value)}
                     placeholder="Ej: iPhone 15 Pro"
-                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputBg}`}
+                    className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputBg} ${errors.productName ? 'border-red-500' : ''}`}
                   />
+                  {errors.productName && (
+                    <p className="text-red-500 text-sm mt-1">{errors.productName}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -179,12 +208,20 @@ export default function PurchaseAssistantModal({
                     <input
                       type="number"
                       value={formData.amount}
-                      onChange={(e) => handleFormChange('amount', e.target.value)}
+                      onChange={(e) => {
+                        const value = parseFloat(e.target.value);
+                        if (value >= 0 || e.target.value === '') {
+                          handleFormChange('amount', e.target.value);
+                        }
+                      }}
                       placeholder="65000"
                       step="100"
                       min="0"
-                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputBg}`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${inputBg} ${errors.amount ? 'border-red-500' : ''}`}
                     />
+                    {errors.amount && (
+                      <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold mb-2">
