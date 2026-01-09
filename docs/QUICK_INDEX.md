@@ -1,7 +1,7 @@
 # 🎯 Índice Rápido de Documentación
 
-**Última actualización**: Enero 7, 2026  
-**Estado**: ✅ Organización Diátaxis completada
+**Última actualización**: Enero 9, 2026  
+**Estado**: ✅ Documentación de testing integrada
 
 ---
 
@@ -31,6 +31,17 @@
 | **CÓMO** implementarlo | [TECHNICAL/BIMONEDA_IMPLEMENTATION.md](./TECHNICAL/BIMONEDA_IMPLEMENTATION.md) | 20 min | Paso-a-paso, código, validaciones |
 | **DÓNDE** vive en el código | [SYSTEM_ARCHITECTURE.md](./SYSTEM_ARCHITECTURE.md#4-modelo-de-datos) | 10 min | Estructura de datos, componentes |
 | **QUÉ** funciones necesito | [API_REFERENCE.md](./API_REFERENCE.md) | 5 min | Búsqueda de función/hook |
+
+---
+
+### 🧪 Necesito Testing y QA
+
+| Quiero... | Leo... | Tiempo | Contenido |
+|---|---|---|---|
+| **SABER** qué se prueba actualmente | [TESTING_STATUS.md](./TESTING_STATUS.md) | 10 min | Estado actual, cobertura, scripts |
+| **APRENDER** a escribir pruebas | [TECHNICAL/TESTING_IMPLEMENTATION.md](./TECHNICAL/TESTING_IMPLEMENTATION.md) | 25 min | Guía completa de testing, plantillas |
+| **EJECUTAR** pruebas existentes | [README.md](../README.md#testing-y-calidad) | 5 min | Comandos npm test |
+| **DEBUG** fallos de testing | [TECHNICAL/TESTING_IMPLEMENTATION.md](./TECHNICAL/TESTING_IMPLEMENTATION.md#debugging-y-troubleshooting) | 15 min | Solución de problemas comunes |
 
 ---
 

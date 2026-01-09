@@ -81,6 +81,12 @@ Sistema de gestión financiera personal web basado en React que permite a los us
 - **gh-pages 6.1.0**: Publicación en GitHub Pages
 - **npm scripts**: Automatización de build y deploy
 
+### Testing y QA
+- **Playwright 1.40.0**: Testing E2E automatizado
+- **Kill-port 2.0.1**: Limpieza de puertos en testing
+- **Wait-on 9.0.3**: Espera de servicios en pruebas
+- **Bash Scripts**: Automatización de testing workflow
+
 ---
 
 ## 🏛️ Arquitectura de Capas

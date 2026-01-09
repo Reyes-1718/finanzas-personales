@@ -271,7 +271,40 @@ npm run preview      # Preview del build
 npm run deploy       # Deploy a GitHub Pages
 npm run audit        # Auditoría de seguridad npm
 npm run audit:fix    # Intento de fix automático
+
+# 🧪 Testing automatizado
+npm test             # Ejecuta auditoría completa del Asistente de Compras
+npm run test:empty   # Valida formularios vacíos
+npm run test:menu    # Testing del menú principal
 ```
+
+---
+
+## 🧪 Testing y Calidad
+
+### Ejecutar Pruebas Automatizadas
+
+```bash
+# Auditoría completa del Asistente de Compras
+npm test
+
+# Pruebas individuales
+npm run test:empty   # Validación de formularios
+npm run test:menu    # Testing del menú principal
+```
+
+### ¿Qué se prueba automáticamente?
+
+- ✅ **Asistente de Compras**: Funcionalidad completa, cálculos, validaciones
+- ✅ **Formularios**: Manejo de errores en campos vacíos
+- ✅ **Navegación**: Componentes principales y menú
+- ✅ **Rendimiento**: Tiempos de carga y respuesta
+
+### Requisitos para Testing
+
+- Entorno de desarrollo (`NODE_ENV=development`)
+- Puerto 5173 libre
+- ~45 segundos de ejecución
 
 ---
 
@@ -362,9 +395,9 @@ MIT - Libre para usar, modificar y distribuir.
 
 ---
 
-**Última actualización**: 7 de enero de 2026  
+**Última actualización**: 9 de enero de 2026  
 **Versión**: 1.2.0  
 **Estado**: ✅ Producción  
-**Stack**: React 19 + Vite 7 + Tailwind 3.4
+**Stack**: React 19 + Vite 7 + Tailwind 3.4 + Testing Automatizado
 
 Hecho con ❤️

@@ -1,9 +1,9 @@
 # 🧪 TESTING STATUS
 ## Estado Actual del Sistema de Pruebas
 
-**Fecha**: 7 de Enero de 2026  
-**Auditoría Generada Por**: AUDIT_DEEP_DIVE.md  
-**Propósito**: Documentar estado de testing para futuros desarrolladores
+**Fecha**: 9 de Enero de 2026
+**Auditoría Generada Por**: Sistema de documentación Diátaxis
+**Propósito**: Documentar estado de testing para desarrolladores y QA
 
 ---
 
@@ -11,40 +11,211 @@
 
 | Aspecto | Estado | Detalles |
 |---|---|---|
-| **Suite de Testing Activa** | ❌ NO | Playwright y CI workflows fueron eliminados |
-| **Scripts de Test en package.json** | ❌ NO | No hay comandos npm test |
-| **Carpeta /tests** | ❌ NO | No existe |
-| **Archivos de Testing** | 📚 HISTÓRICO | Ver `/docs/HISTORICAL/TESTING/` |
-| **Cobertura Actual** | 0% | Manual testing solo |
-| **Recomendación** | 🔄 REACTIVAR | Ver Plan de Reactivación abajo |
+| **Suite de Testing Activa** | ✅ SÍ | Playwright E2E testing implementado |
+| **Scripts de Test en package.json** | ✅ SÍ | `npm test`, `npm run test:empty`, `npm run test:menu` |
+| **Carpeta /tests** | ✅ SÍ | 3 archivos de prueba activos |
+| **Automatización CI** | ❌ NO | Solo testing local por ahora |
+| **Cobertura Actual** | 🔄 EN DESARROLLO | Testing del Asistente de Compras implementado |
+| **Recomendación** | ✅ ACTIVO | Ver sección de Testing Actual abajo |
 
 ---
 
-## ❌ QUÉ FUE REMOVIDO
+## ✅ TESTING ACTUALMENTE ACTIVO
 
-### Archivos Eliminados
+### 🛠️ Stack de Testing
+
+| Tecnología | Versión | Propósito |
+|------------|---------|----------|
+| **Playwright** | 1.40.0 | Testing E2E automatizado |
+| **Node.js Scripts** | Built-in | Testing de formularios y lógica |
+| **Bash Automation** | scripts/run-test.sh | Orquestación de pruebas |
+
+### 📁 Estructura de Testing
 
 ```
-❌ playwright.config.js         (Configuración de Playwright)
-❌ /tests/                       (Carpeta de especificaciones)
-❌ .github/workflows/            (CI/CD pipelines)
+tests/
+├── test-audit-purchase-assistant.js    # 🧪 Auditoría completa del Asistente de Compras
+├── test-empty-form.js                  # 🧪 Validación de formularios vacíos
+└── test-purchase-assistant.js          # 🧪 Testing básico del asistente
+
+scripts/
+└── run-test.sh                         # 🚀 Script de automatización completa
 ```
 
-### Scripts npm Removidos
+### 🎯 Scripts npm Disponibles
 
 ```bash
-# Estos comandos YA NO FUNCIONAN:
-npm test                  # ❌ No existe
-npm run test:unit         # ❌ No existe
-npm run test:e2e          # ❌ No existe
-npm run test:coverage     # ❌ No existe
+npm test                    # 🏃 Ejecuta auditoría completa automatizada
+npm run test:empty          # 🧪 Valida formularios vacíos
+npm run test:menu           # 🧪 Testing del menú principal
 ```
 
-### Razón de Remoción
+### 🔄 Flujo de Testing Automatizado
 
-> "Se eliminaron los tests de Playwright, la configuración asociada y los workflows de GitHub Actions, por lo que no se dispara ninguna ejecución de tests al instalar o desplegar."
+El comando `npm test` ejecuta el siguiente flujo:
 
-**Nota**: Ver `/docs/HISTORICAL/TESTING/` para información sobre cómo estaban configurados.
+1. **Verificación de Entorno**: Solo funciona en desarrollo (`NODE_ENV=development`)
+2. **Limpieza de Puertos**: Mata procesos en puerto 5173
+3. **Inicio del Servidor**: `npm run dev` en background
+4. **Espera de Disponibilidad**: Espera hasta 30s a que localhost:5173 responda
+5. **Ejecución de Pruebas**: Corre `test-audit-purchase-assistant.js`
+6. **Limpieza**: Detiene el servidor y limpia puertos
+
+---
+
+## 📋 PRUEBAS IMPLEMENTADAS
+
+### 🛍️ Asistente de Compras - Auditoría Completa
+
+**Archivo**: `tests/test-audit-purchase-assistant.js`
+**Propósito**: Validar funcionalidad completa del Asistente de Compras
+
+**Escenarios Probados**:
+- ✅ Apertura del modal
+- ✅ Validación de formulario vacío
+- ✅ Llenado de datos válidos
+- ✅ Cálculo de viabilidad
+- ✅ Captura de resultados
+- ✅ Verificación de logs de consola
+
+**Métricas de Éxito**:
+- Tiempo de carga < 10 segundos
+- No errores en consola
+- Formulario responde correctamente
+- Cálculos financieros precisos
+
+### 📝 Formularios Vacíos
+
+**Archivo**: `tests/test-empty-form.js`
+**Propósito**: Validar manejo de errores en formularios
+
+### 🎛️ Menú Principal
+
+**Archivo**: `tests/test-menu.js`
+**Propósito**: Validar navegación y componentes principales
+
+---
+
+## 🚀 GUÍA DE EJECUCIÓN
+
+### Ejecutar Todas las Pruebas
+
+```bash
+# Desde la raíz del proyecto
+npm test
+```
+
+**Salida Esperada**:
+```
+🔍 Iniciando auditoría del Asistente de Compra...
+
+🌐 Navegando a la aplicación...
+🛍️ Abriendo Asistente de Compra...
+📝 Probando formulario vacío...
+⚠️  Errores detectados en formulario vacío: X
+📝 Llenando formulario con datos válidos...
+🔢 Calculando viabilidad...
+✅ Prueba completada exitosamente
+```
+
+### Ejecutar Pruebas Individuales
+
+```bash
+# Solo validación de formularios vacíos
+npm run test:empty
+
+# Solo testing del menú
+npm run test:menu
+```
+
+### Requisitos para Testing
+
+- **Entorno**: `NODE_ENV=development`
+- **Dependencias**: `npm install` completado
+- **Puerto 5173**: Libre (se limpia automáticamente)
+- **Tiempo**: ~45 segundos por ejecución completa
+
+---
+
+## 📈 COBERTURA DE TESTING
+
+### ✅ Funcionalidades Probadas
+
+| Feature | Estado | Archivo de Prueba |
+|---------|--------|-------------------|
+| Asistente de Compras | ✅ Completo | test-audit-purchase-assistant.js |
+| Formularios Vacíos | ✅ Básico | test-empty-form.js |
+| Navegación Menú | ✅ Básico | test-menu.js |
+| Dashboard | ❌ Pendiente | - |
+| Transacciones | ❌ Pendiente | - |
+| Presupuestos | ❌ Pendiente | - |
+| Reportes PDF | ❌ Pendiente | - |
+
+### 🎯 Roadmap de Testing
+
+1. **Fase 1** (Actual): Asistente de Compras ✅
+2. **Fase 2**: Dashboard y Transacciones
+3. **Fase 3**: Presupuestos y Metas
+4. **Fase 4**: Reportes y Backup/Restore
+5. **Fase 5**: CI/CD automatizado
+
+---
+
+## 🛠️ MANTENIMIENTO DE TESTS
+
+### Agregar Nueva Prueba
+
+1. **Crear archivo** en `/tests/test-[feature].js`
+2. **Implementar** lógica de testing
+3. **Agregar script** en `package.json` si es necesario
+4. **Documentar** en este archivo
+5. **Probar** con `npm test`
+
+### Mejores Prácticas
+
+- **Playwright**: Usar para testing E2E (interacciones reales)
+- **Node Scripts**: Usar para testing de lógica pura
+- **Bash**: Usar para automatización y orquestación
+- **Documentación**: Mantener este archivo actualizado
+
+---
+
+## 🔍 DEPURACIÓN DE TESTS
+
+### Problemas Comunes
+
+**❌ "La app no carga en testing"**
+```bash
+# Verificar puerto manualmente
+curl http://localhost:5173
+
+# Ejecutar dev server manualmente
+npm run dev
+```
+
+**❌ "Playwright no encuentra elementos"**
+- Verificar selectores CSS
+- Agregar `await page.waitForSelector()`
+- Revisar cambios en la UI
+
+**❌ "Timeout en pruebas"**
+- Aumentar timeout en configuración
+- Verificar rendimiento de la app
+- Revisar logs de consola
+
+---
+
+## 📚 REFERENCIAS
+
+- [Playwright Documentation](https://playwright.dev/)
+- [Testing con React](https://react.dev/learn/testing)
+- [Bash Scripting Guide](https://tldp.org/LDP/Bash-Beginners-Guide/html/)
+
+---
+
+**Estado**: ✅ Testing activo y funcional
+**Última actualización**: 9 de enero de 2026
+**Próxima revisión**: Al agregar nuevas funcionalidades
 
 ---
 
