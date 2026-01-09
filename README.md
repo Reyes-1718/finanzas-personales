@@ -19,6 +19,7 @@
 - [📦 Instalación Completa](#instalación-completa)
 - [🌐 Despliegue en GitHub Pages](#despliegue-en-github-pages)
 - [📱 Guía de Uso](#guía-de-uso)
+- [🧪 Testing y Calidad](#testing-y-calidad)
 - [🐛 Solución de Problemas](#solución-de-problemas)
 - [🔒 Seguridad y Privacidad](#seguridad-y-privacidad)
 
@@ -63,9 +64,10 @@
 | **Tailwind CSS** | 3.4.0 | Estilos y diseño responsivo |
 | **Recharts** | 2.10.3 | Gráficos interactivos |
 | **CryptoJS** | 4.2.0 | Cifrado AES-256 para datos |
+| **Playwright** | 1.40.0 | Testing E2E automatizado |
 | **gh-pages** | 6.1.0 | Despliegue a GitHub Pages |
 
-**Enfoque**: Single Page Application (SPA) con almacenamiento local (LocalStorage). Sin backend requerido.
+**Enfoque**: Single Page Application (SPA) con almacenamiento local (LocalStorage), testing automatizado con Playwright, y documentación completa siguiendo estándares Diátaxis.
 
 ---
 
@@ -78,6 +80,7 @@
 | **👨‍💻 Desarrollador nuevo** | [QUICK_INDEX.md](./docs/QUICK_INDEX.md) + perfil | 15 min |
 | **🏗️ Necesitas arquitectura** | [SYSTEM_ARCHITECTURE.md](./docs/SYSTEM_ARCHITECTURE.md) | 45 min |
 | **🔨 Vas a agregar feature** | [TECHNICAL/](./docs/TECHNICAL/) | 20-30 min |
+| **🧪 Vas a hacer testing** | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) + [TECHNICAL/TESTING_IMPLEMENTATION.md](./docs/TECHNICAL/TESTING_IMPLEMENTATION.md) | 20 min |
 | **👨‍💼 Eres stakeholder** | [EXECUTIVE_SUMMARY.md](./docs/EXECUTIVE_SUMMARY.md) | 15 min |
 | **🔍 Necesitas una función** | [API_REFERENCE.md](./docs/API_REFERENCE.md) + Ctrl+F | 2-5 min |
 | **📊 Revisor/auditor** | [AUDIT_DEEP_DIVE.md](./docs/AUDIT_DEEP_DIVE.md) | 30 min |
@@ -92,10 +95,13 @@
 | [FLOW_DIAGRAMS.md](./docs/FLOW_DIAGRAMS.md) | Diagramas y flujos de datos | REFERENCIA |
 | [BUSINESS_RULES/BIMONEDA_SYSTEM.md](./docs/BUSINESS_RULES/BIMONEDA_SYSTEM.md) | Reglas del sistema bimoneda (DOP/USD) | EXPLICACIÓN |
 | [TECHNICAL/BIMONEDA_IMPLEMENTATION.md](./docs/TECHNICAL/BIMONEDA_IMPLEMENTATION.md) | Cómo implementar bimoneda (paso-a-paso) | INSTRUCCIONES |
+| [TECHNICAL/TESTING_IMPLEMENTATION.md](./docs/TECHNICAL/TESTING_IMPLEMENTATION.md) | Guía completa de testing automatizado | INSTRUCCIONES |
 | [FEATURES/](./docs/FEATURES/) | Documentación de features específicas | TUTORIAL |
 | [QUICK_INDEX.md](./docs/QUICK_INDEX.md) | Navegador de documentación por rol | TUTORIAL |
 | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) | Estado de testing y CI | REFERENCIA |
 | [AUDIT_DEEP_DIVE.md](./docs/AUDIT_DEEP_DIVE.md) | Análisis exhaustivo código vs docs | REFERENCIA |
+| [IMPLEMENTATION_SUMMARY.md](./docs/IMPLEMENTATION_SUMMARY.md) | Resumen de implementación del proyecto | REFERENCIA |
+| [REORGANIZATION_SUMMARY.md](./docs/REORGANIZATION_SUMMARY.md) | Resumen de reorganización documental | REFERENCIA |
 
 ### 📂 Estructura de /docs
 
@@ -104,17 +110,30 @@ docs/
 ├── BUSINESS_RULES/          # Explicación de decisiones (Diátaxis: EXPLICACIÓN)
 │   └── BIMONEDA_SYSTEM.md   # Single Source of Truth: Sistema de bimoneda
 ├── TECHNICAL/               # Guías de implementación (Diátaxis: INSTRUCCIONES)
-│   └── BIMONEDA_IMPLEMENTATION.md
+│   ├── BIMONEDA_IMPLEMENTATION.md    # Cómo implementar bimoneda
+│   ├── TESTING_IMPLEMENTATION.md     # Guía completa de testing
+│   └── README.md                     # Índice de guías técnicas
 ├── FEATURES/                # Documentación de features (Diátaxis: TUTORIAL)
-│   └── purchase-assistant/
+│   └── purchase-assistant/  # Documentación específica del asistente
 ├── HISTORICAL/              # Archivos históricos y auditoría (Diátaxis: ARCHIVO)
-│   ├── AUDITS/
-│   └── TESTING/
-└── [Archivos raíz]          # Referencias rápidas (Diátaxis: REFERENCIA)
-    ├── SYSTEM_ARCHITECTURE.md
-    ├── API_REFERENCE.md
-    ├── FLOW_DIAGRAMS.md
-    └── ...
+│   ├── AUDITS/             # Reportes de auditoría consolidados
+│   ├── TESTING/            # Historial de testing
+│   ├── BIMONEDA_REPORT_STATS_ORIGINAL.md
+│   ├── DELIVERABLES_PHASE1.md
+│   ├── DELIVERY_SUMMARY.md
+│   ├── EXCHANGE_RATE_IMMUTABLE_ORIGINAL.md
+│   ├── ORIGINAL_PROMPTS.md
+│   ├── PHASE_2_ROADMAP.md
+│   └── README.md           # Índice de archivos históricos
+└── [Archivos raíz]         # Referencias rápidas (Diátaxis: REFERENCIA)
+    ├── SYSTEM_ARCHITECTURE.md        # Arquitectura completa del sistema
+    ├── EXECUTIVE_SUMMARY.md          # Resumen ejecutivo
+    ├── API_REFERENCE.md              # Referencia de funciones
+    ├── FLOW_DIAGRAMS.md              # Diagramas y flujos
+    ├── TESTING_STATUS.md             # Estado actual de testing
+    ├── IMPLEMENTATION_SUMMARY.md     # Resumen de implementación
+    ├── REORGANIZATION_SUMMARY.md     # Resumen de reorganización
+    └── QUICK_INDEX.md               # Navegador por rol
 ```
 
 ---
