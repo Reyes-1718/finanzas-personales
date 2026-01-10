@@ -40,6 +40,17 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
     return (amount / maxExpense) * 100;
   };
 
+  // Función para formatear montos según notación financiera
+  const formatAmount = (amount) => {
+    if (amount < 1000) {
+      return amount.toString();
+    } else if (amount < 1000000) {
+      return (amount / 1000).toFixed(1) + 'k';
+    } else {
+      return (amount / 1000000).toFixed(1) + 'M';
+    }
+  };
+
   // Validar que el mes/año sean válidos
   if (month < 0 || month > 11 || year < 1900 || year > 2100) {
     return (
@@ -94,7 +105,7 @@ const Calendar = ({ transactions, year, month, getDailyExpenses }) => {
                 <span className="font-bold">{day}</span>
                 {expense > 0 && (
                   <span className="text-xs mt-1">
-                    RD$ {(expense / 1000).toFixed(0)}k
+                    RD$ {formatAmount(expense)}
                   </span>
                 )}
               </div>
