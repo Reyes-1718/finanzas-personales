@@ -12,16 +12,16 @@
 
 ## 📋 Tabla de Contenidos
 
-- [✨ Características Principales](#características-principales)
-- [🛠️ Stack Tecnológico](#stack-tecnológico)
-- [📚 Documentación Técnica](#documentación-técnica)
-- [🚀 Inicio Rápido](#inicio-rápido)
-- [📦 Instalación Completa](#instalación-completa)
-- [🌐 Despliegue en GitHub Pages](#despliegue-en-github-pages)
-- [📱 Guía de Uso](#guía-de-uso)
-- [🧪 Testing y Calidad](#testing-y-calidad)
-- [🐛 Solución de Problemas](#solución-de-problemas)
-- [🔒 Seguridad y Privacidad](#seguridad-y-privacidad)
+- [✨ Características Principales](#-características-principales)
+- [🛠️ Stack Tecnológico](#-stack-tecnológico)
+- [📚 Documentación Técnica](#-documentación-técnica)
+- [🚀 Inicio Rápido](#-inicio-rápido)
+- [📦 Instalación Completa](#-instalación-completa)
+- [🌐 Despliegue en GitHub Pages](#-despliegue-en-github-pages)
+- [📱 Guía de Uso](#-guía-de-uso)
+- [🧪 Testing y Calidad](#-testing-y-calidad)
+- [🐛 Solución de Problemas](#-solución-de-problemas)
+- [🔒 Seguridad y Privacidad](#-seguridad-y-privacidad)
 
 ---
 
