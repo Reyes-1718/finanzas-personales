@@ -252,7 +252,7 @@ const calculateHistoricalBalance = (transactions, year, month) => {
           ? 'bg-yellow-500'
           : 'bg-red-500'
       }`}
-      style={{ width: `${Math.min(percentageSpent, 100)}%` }}
+      style={{ width: Math.min(percentageSpent, 100) + '%' }}
     />
   </div>
   

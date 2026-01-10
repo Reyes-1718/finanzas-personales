@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PAYMENT_METHODS } from '../config/categoryConfig';
 
 const TransactionForm = ({ 
@@ -19,6 +19,15 @@ const TransactionForm = ({
     currency: 'DOP',
     paymentMethod: 'efectivo'
   });
+
+  // Set initial category based on type
+  useEffect(() => {
+    const categories = formData.type === 'ingreso' ? incomeCategories : expenseCategories;
+    setFormData(prev => ({
+      ...prev,
+      category: categories[0] || ''
+    }));
+  }, [incomeCategories, expenseCategories, formData.type]);
 
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringFrequency, setRecurringFrequency] = useState('mensual');
