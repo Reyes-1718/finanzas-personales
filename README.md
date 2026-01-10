@@ -99,9 +99,8 @@
 | [FEATURES/](./docs/FEATURES/) | Documentación de features específicas | TUTORIAL |
 | [QUICK_INDEX.md](./docs/QUICK_INDEX.md) | Navegador de documentación por rol | TUTORIAL |
 | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) | Estado de testing y CI | REFERENCIA |
-| [AUDIT_DEEP_DIVE.md](./docs/AUDIT_DEEP_DIVE.md) | Análisis exhaustivo código vs docs | REFERENCIA |
+| [AUDIT_DEEP_DIVE.md](./docs/HISTORICAL/AUDITS/AUDIT_DEEP_DIVE.md) | Análisis exhaustivo código vs docs | REFERENCIA |
 | [IMPLEMENTATION_SUMMARY.md](./docs/IMPLEMENTATION_SUMMARY.md) | Resumen de implementación del proyecto | REFERENCIA |
-| [REORGANIZATION_SUMMARY.md](./docs/REORGANIZATION_SUMMARY.md) | Resumen de reorganización documental | REFERENCIA |
 
 ### 📂 Estructura de /docs
 
@@ -118,6 +117,7 @@ docs/
 ├── HISTORICAL/              # Archivos históricos y auditoría (Diátaxis: ARCHIVO)
 │   ├── AUDITS/             # Reportes de auditoría consolidados
 │   ├── TESTING/            # Historial de testing
+│   ├── REORGANIZATION_SUMMARY.md     # Resumen de reorganización
 │   ├── BIMONEDA_REPORT_STATS_ORIGINAL.md
 │   ├── DELIVERABLES_PHASE1.md
 │   ├── DELIVERY_SUMMARY.md
@@ -132,7 +132,6 @@ docs/
     ├── FLOW_DIAGRAMS.md              # Diagramas y flujos
     ├── TESTING_STATUS.md             # Estado actual de testing
     ├── IMPLEMENTATION_SUMMARY.md     # Resumen de implementación
-    ├── REORGANIZATION_SUMMARY.md     # Resumen de reorganización
     └── QUICK_INDEX.md               # Navegador por rol
 ```
 
@@ -420,9 +419,8 @@ MIT - Libre para usar, modificar y distribuir.
 
 ---
 
-**Última actualización**: 9 de enero de 2026  
+**Última actualización**: 10 de enero de 2026  
 **Versión**: 1.2.0  
-**Estado**: ✅ Producción  
-**Stack**: React 19 + Vite 7 + Tailwind 3.4 + Testing Automatizado
+**Estado**: ✅ Producción + Auditoría SSOT Completada
 
 Hecho con ❤️
