@@ -13,7 +13,7 @@
 ## 📋 Tabla de Contenidos
 
 - [✨ Características Principales](#-características-principales)
-- [🛠️ Stack Tecnológico](#-stack-tecnológico)
+- [⚙️ Stack Tecnológico](#stack-tecnológico)
 - [📚 Documentación Técnica](#-documentación-técnica)
 - [🚀 Inicio Rápido](#-inicio-rápido)
 - [📦 Instalación Completa](#-instalación-completa)
@@ -55,7 +55,7 @@
 
 ---
 
-## 🛠️ Stack Tecnológico
+## ⚙️ Stack Tecnológico
 
 | Tecnología | Versión | Propósito |
 |------------|---------|----------|
