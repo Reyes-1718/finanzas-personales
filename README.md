@@ -312,6 +312,12 @@ npm run test:empty   # Validación de formularios
 npm run test:menu    # Testing del menú principal
 ```
 
+### ⚠️ Importante: Entorno de Ejecución para Scripts
+- **`run-test.sh`**: Este archivo es un script de shell que **solo puede ser ejecutado con una terminal que pueda emular un entorno Unix**. 
+  - **Windows PowerShell** está orientado a objetos y no puede ejecutar comandos de Unix directamente.
+  - **Recomendación**: Usa **Git Bash** para ejecutar `run-test.sh`.
+  - Los demás archivos de test (`.js`) pueden ejecutarse con **Windows Terminal** o cualquier terminal compatible con Node.js.
+
 ### ¿Qué se prueba automáticamente?
 
 - ✅ **Asistente de Compras**: Funcionalidad completa, cálculos, validaciones
