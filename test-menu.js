@@ -6,22 +6,38 @@ import readline from 'readline';
 const testsDir = './tests';
 const scriptsDir = './scripts';
 
-function scanDirectory(dir, extension) {
+function scanTests(dir) {
   if (!fs.existsSync(dir)) return [];
+  const exts = ['.js', '.ts', '.mjs', '.mts', '.cjs'];
   return fs.readdirSync(dir)
-    .filter(file => file.endsWith(extension))
+    .filter(file => exts.some(ext => file.endsWith(ext)))
     .map(file => ({
       name: file,
       path: path.resolve(path.join(dir, file)),
-      type: extension === '.js' ? 'test' : 'script'
+      type: 'test',
+      runner: file.endsWith('.ts') || file.endsWith('.mts') ? 'tsx'
+        : file.endsWith('.mjs') ? 'node --experimental-modules'
+        : 'node'
     }));
 }
 
-const testFiles = scanDirectory(testsDir, '.js');
-const scriptFiles = scanDirectory(scriptsDir, '.sh');
+function scanScripts(dir) {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter(file => file.endsWith('.sh'))
+    .map(file => ({
+      name: file,
+      path: path.resolve(path.join(dir, file)),
+      type: 'script',
+      runner: 'sh'
+    }));
+}
+
+const testFiles = scanTests(testsDir);
+const scriptFiles = scanScripts(scriptsDir);
 
 const choices = [
-  ...testFiles.map(f => ({ ...f, display: `Test: ${f.name} (${testsDir})` })),
+  ...testFiles.map(f => ({ ...f, display: `Test (${f.runner}): ${f.name} (${testsDir})` })),
   ...scriptFiles.map(f => ({ ...f, display: `Script: ${f.name} (${scriptsDir})` }))
 ];
 
@@ -48,10 +64,10 @@ rl.question('Ingresa el número de la opción: ', (answer) => {
     return;
   }
   const selected = choices[index];
-  console.log(`Ejecutando: ${selected.type === 'test' ? 'node' : 'sh'} ${path.relative(process.cwd(), selected.path)}`);
+  console.log(`Ejecutando: ${selected.runner} ${path.relative(process.cwd(), selected.path)}`);
   
   if (selected.type === 'test') {
-    exec(`node "${selected.path}"`, (error, stdout, stderr) => {
+    exec(`${selected.runner} "${selected.path}"`, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${error.message}`);
         rl.close();

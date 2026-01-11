@@ -308,7 +308,7 @@ npm test
 
 # Pruebas individuales
 npm run test:empty   # Validación de formularios
-npm run test:menu    # Testing del menú principal
+npm run test:menu    # Menú interactivo de tests y scripts
 ```
 
 ### ⚠️ Importante: Entorno de Ejecución para Scripts
@@ -329,6 +329,16 @@ npm run test:menu    # Testing del menú principal
 - Entorno de desarrollo (`NODE_ENV=development`)
 - Puerto 5173 libre
 - ~45 segundos de ejecución
+
+### Ejecutar Tests y Scripts Interactivamente
+
+Además de los comandos npm, puedes usar [`test-menu.js`](test-menu.js) para una selección interactiva de tests y scripts:
+
+```bash
+node test-menu.js
+```
+
+Esto escanea `./tests` y `./scripts`, muestra un menú numerado y ejecuta la opción seleccionada. Soporta múltiples extensiones (.js, .ts, .mjs, .mts, .cjs) con runners adecuados. Ideal para desarrollo local en entornos Unix-emulados (como Git Bash en Windows).
 
 ---
 
