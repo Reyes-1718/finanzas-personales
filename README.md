@@ -37,13 +37,15 @@
 ### 📊 Análisis y Control
 - **📊 Presupuestos Mensuales**: Define límites por categoría con visualización de progreso
 - **🎯 Metas de Ahorro**: Establece objetivos con cálculo inteligente de ahorro periódico
+- **🚨 Fondo de Emergencia**: Gestión automática de fondo con meta calculada (3-6 meses de gastos fijos)
 - **📈 Estadísticas Avanzadas**: Análisis detallado (promedio, top gastos, tendencias)
 - **📅 Calendario**: Visualiza gastos diarios del mes en formato calendárico
 - **🔍 Búsqueda Avanzada**: Filtra transacciones por múltiples criterios
 - **🔔 Sistema de Alertas**: Notificaciones cuando excedes límites de gasto
 
 ### 📋 Reportes y Exportación
-- **📋 Reportes PDF**: Exporta estados financieros profesionales
+- **📋 Reportes PDF**: Exporta estados financieros profesionales y del fondo de emergencia
+- **📊 Exportación del Fondo**: CSV, JSON y reportes imprimibles del historial
 - **💾 Backup/Restore**: Exporta e importa datos en JSON (cifrados con AES-256)
 - **🔐 Cifrado Local**: Todos los datos guardados de forma segura
 

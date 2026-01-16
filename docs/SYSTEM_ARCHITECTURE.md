@@ -713,7 +713,73 @@ calculatePeriodicSavings(target, deadline, income) → SavingsCalc
 
 ---
 
-### 4. `useTheme.js` - Gestor de Tema
+### 4. `useEmergencyFund.js` - Fondo de Emergencia
+
+**Propósito**: Gestión completa del fondo de emergencia con cálculo automático de meta
+
+**Funciones**:
+
+```javascript
+// Estado
+fund: {
+  meta: number,
+  recommendedMeta: number,
+  manualMeta: number | null,
+  multiplicador: number,
+  saldoActual: number,
+  transacciones: Transaction[],
+  configuracion: {
+    alertas_habilitadas: boolean,
+    umbral_alerta: number,
+    ultima_actualizacion_meta: string
+  },
+  lastComputation: {
+    monthsUsed: number,
+    monthlyAverage: number,
+    totalFixed: number
+  }
+}
+
+// Transacciones
+deposit({ monto, moneda, tasaCambio, descripcion, fecha }) → Result
+withdraw({ monto, moneda, tasaCambio, descripcion, categoria_emergencia, fecha }) → Result
+
+// Configuración
+setMultiplier(value) → void  // Ajustar 3-6 meses
+setManualMeta(value) → void  // Override de meta
+
+// Cálculos
+progress: number          // Progreso 0-100%
+shouldAlert: boolean      // Si debe alertar
+
+// Utilidades
+getRateFromStorage() → number  // Tasa USD/DOP
+```
+
+**Almacenamiento**: LocalStorage bajo clave `fondoEmergencia`
+
+**Integración**: Se usa en Purchase Assistant para validar impacto de compras
+
+---
+
+### 5. `useTheme.js` - Gestor de Tema
+
+**Propósito**: Control de tema oscuro/claro
+
+**Funciones**:
+
+```javascript
+// Estado
+isDark: boolean
+
+// Control
+toggleTheme() → void
+setDarkMode(value) → void
+```
+
+---
+
+### 6. `useAlerts.js` - Sistema de Alertas
 
 **Propósito**: Control de tema oscuro/claro
 
@@ -810,12 +876,14 @@ FloatingNav (Móvil)
 - Gráfico de distribución de gastos (Pie chart)
 - Tabla de transacciones con ordenamiento
 - Cálculos de ingresos/gastos/balance
+- Widget del Fondo de Emergencia
 
 **Funcionalidades**:
 - Ordenamiento por: Fecha, Monto, Categoría
 - Dirección: Ascendente/Descendente
 - Eliminar transacciones con confirmación
 - Responsive: Tabla scrolleable en móvil
+- Acceso rápido al panel del fondo
 
 **Propiedades Computadas**:
 ```javascript
@@ -824,7 +892,11 @@ totalIncome          // Suma de ingresos
 totalExpenses        // Suma de gastos
 balance              // Diferencia
 expensesByCategory   // Datos para gráfico Pie
+fundProgress         // Progreso del fondo de emergencia
+fundShouldAlert      // Estado de alerta del fondo
 ```
+
+**Nuevo**: Integración de EmergencyFundWidget para vista rápida del estado del fondo.
 
 ---
 
@@ -885,6 +957,23 @@ expensesByCategory   // Datos para gráfico Pie
 - Visualizar progreso
 - Cálculo automático de ahorro requerido
 - Marcar como alcanzadas
+
+#### EmergencyFundWidget.jsx (Nuevo)
+- Vista compacta del estado del fondo
+- Barra de progreso visual
+- Alerta si fondo < umbral
+- Botón para abrir panel completo
+- Ubicación: Dashboard principal
+
+#### EmergencyFundPanel.jsx (Nuevo)
+- Panel completo de gestión del fondo
+- Formularios de depósito/retiro
+- Ajuste de multiplicador (3-6 meses)
+- Meta manual override
+- Historial de transacciones
+- Exportación CSV/JSON/PDF
+- Gráficos de progreso
+- Cálculo automático basado en gastos fijos
 
 #### AdvancedStats.jsx
 - Top 5 gastos
@@ -949,6 +1038,11 @@ expensesByCategory   // Datos para gráfico Pie
 - **Clave de Metas**: `savings_goals`
   - Contenido: Array JSON de metas
   - Sin encriptación
+
+- **Clave de Fondo de Emergencia**: `fondoEmergencia` (Nuevo)
+  - Contenido: Objeto JSON del fondo
+  - Incluye: meta, saldo, transacciones, configuración
+  - Sin encriptación (datos internos del usuario)
 
 - **Clave de Alertas**: `alert_settings`
   - Contenido: Configuración de alertas
