@@ -32,6 +32,15 @@ const EmergencyFundPanel = ({
   });
   const [message, setMessage] = useState(null);
 
+  const multiplierPct = Math.min(100, Math.max(0, ((fund.multiplicador - 3) / 3) * 100));
+  const getMultiplierLabel = (m) => {
+    const val = Number(m) || 3;
+    if (val <= 3) return 'Estabilidad básica';
+    if (val === 4) return 'Protección moderada';
+    if (val === 5) return 'Mayor protección';
+    return 'Máxima seguridad';
+  };
+
   const handleDeposit = (e) => {
     e.preventDefault();
     if (!depositForm.monto || Number(depositForm.monto) <= 0) {
@@ -230,7 +239,12 @@ const EmergencyFundPanel = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Multiplicador (3-6 meses)</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Multiplicador (3-6 meses)</p>
+              <span className="text-sm text-gray-700 dark:text-gray-300" data-testid="multiplier-current">
+                {fund.multiplicador}x
+              </span>
+            </div>
             <input
               type="range"
               min="3"
@@ -240,8 +254,10 @@ const EmergencyFundPanel = ({
               onChange={(e) => setMultiplier(e.target.value)}
               className="w-full"
             />
-            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-              <span>3x: Estabilidad básica</span>
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2" data-testid="multiplier-labels">
+              <span>
+                Actual: {fund.multiplicador}x — {getMultiplierLabel(fund.multiplicador)}
+              </span>
               <span>6x: Máxima seguridad</span>
             </div>
           </div>
