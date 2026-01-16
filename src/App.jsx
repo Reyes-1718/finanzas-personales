@@ -19,6 +19,9 @@ import ReportPDF from './components/ReportPDF';
 import Alerts from './components/Alerts';
 import FloatingNav from './components/FloatingNav';
 import PurchaseAssistantModal from './components/PurchaseAssistantModal';
+import EmergencyFundWidget from './components/EmergencyFundWidget';
+import EmergencyFundPanel from './components/EmergencyFundPanel';
+import { useEmergencyFund } from './hooks/useEmergencyFund';
 
 function App() {
   const {
@@ -41,6 +44,8 @@ function App() {
     getDailyExpenses
   } = useFinancesData();
 
+  const emergencyFund = useEmergencyFund(data.transactions);
+
   // Estado para el mes/año seleccionado
   const [selectedDate, setSelectedDate] = useState(() => {
     const now = new Date();
@@ -54,6 +59,16 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const {
+    fund,
+    deposit,
+    withdraw,
+    setMultiplier,
+    setManualMeta,
+    progress,
+    shouldAlert,
+    getRateFromStorage
+  } = emergencyFund;
 
   // Tema y hooks adicionales
   const { isDark, toggleTheme } = useTheme();
@@ -183,6 +198,7 @@ function App() {
               <NavButton icon="📈" label="Proyección" isActive={activeTab === 'projection'} onClick={() => { setActiveTab('projection'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="💚" label="Metas" isActive={activeTab === 'goals'} onClick={() => { setActiveTab('goals'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="📊" label="Presupuestos" isActive={activeTab === 'budgets'} onClick={() => { setActiveTab('budgets'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="🛟" label="Fondo Emergencia" isActive={activeTab === 'emergency'} onClick={() => { setActiveTab('emergency'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="📈" label="Estadísticas" isActive={activeTab === 'stats'} onClick={() => { setActiveTab('stats'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="📅" label="Calendario" isActive={activeTab === 'calendar'} onClick={() => { setActiveTab('calendar'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="📋" label="Reportes" isActive={activeTab === 'reports'} onClick={() => { setActiveTab('reports'); if (isMobile) setSidebarOpen(false); }} />
@@ -199,8 +215,14 @@ function App() {
           {/* Contenido Principal */}
           <div className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
             <div className="p-4 md:p-8 mt-0">
+              {shouldAlert && (
+                <div className="mb-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg p-4">
+                  ❗ Tu fondo de emergencia está por debajo del {fund.configuracion.umbral_alerta}% de la meta. Refuerza tu seguridad financiera.
+                </div>
+              )}
+
               {/* Selector de Mes/Año */}
-              {!['backup', 'search'].includes(activeTab) && (
+              {!['backup', 'search', 'emergency'].includes(activeTab) && (
                 <div className="mb-8 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                   <div className="flex flex-wrap items-center gap-4">
                     <button onClick={handlePrevMonth} className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white rounded transition">← Anterior</button>
@@ -218,13 +240,22 @@ function App() {
 
               {/* Contenido por Pestaña */}
               {activeTab === 'dashboard' && (
-                <Dashboard 
-                  transactions={data.transactions} 
-                  selectedMonth={selectedDate.month} 
-                  selectedYear={selectedDate.year} 
-                  calculateBalance={calculateBalance}
-                  deleteTransaction={deleteTransaction}
-                />
+                <div className="space-y-4">
+                  <EmergencyFundWidget
+                    meta={fund.meta}
+                    saldoActual={fund.saldoActual}
+                    progress={progress}
+                    shouldAlert={shouldAlert}
+                    onOpenFund={() => setActiveTab('emergency')}
+                  />
+                  <Dashboard 
+                    transactions={data.transactions} 
+                    selectedMonth={selectedDate.month} 
+                    selectedYear={selectedDate.year} 
+                    calculateBalance={calculateBalance}
+                    deleteTransaction={deleteTransaction}
+                  />
+                </div>
               )}
 
               {activeTab === 'transactions' && (
@@ -282,6 +313,19 @@ function App() {
                   getAutoBudgetAmount={budgets.getAutoBudgetAmount}
                   getSuggestedBudgets={budgets.getSuggestedBudgets}
                   applyAutoBudgets={budgets.applyAutoBudgets}
+                />
+              )}
+
+              {activeTab === 'emergency' && (
+                <EmergencyFundPanel
+                  fund={fund}
+                  progress={progress}
+                  shouldAlert={shouldAlert}
+                  setMultiplier={setMultiplier}
+                  setManualMeta={setManualMeta}
+                  deposit={deposit}
+                  withdraw={withdraw}
+                  getRateFromStorage={getRateFromStorage}
                 />
               )}
 

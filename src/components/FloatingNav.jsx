@@ -12,6 +12,7 @@ const FloatingNav = ({ activeTab, onTabChange, isMobile }) => {
     { icon: '📈', label: 'Proyección', key: 'projection' },
     { icon: '💚', label: 'Metas', key: 'goals' },
     { icon: '📊', label: 'Presupuestos', key: 'budgets' },
+    { icon: '🛟', label: 'Fondo', key: 'emergency' },
     { icon: '📈', label: 'Estadísticas', key: 'stats' },
     { icon: '📅', label: 'Calendario', key: 'calendar' },
     { icon: '📋', label: 'Reportes', key: 'reports' },

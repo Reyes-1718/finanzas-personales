@@ -15,6 +15,7 @@ const TransactionForm = ({
     date: new Date().toISOString().split('T')[0],
     category: '',
     type: 'gasto-variable',
+    tipo_gasto: 'variable',
     incomeType: 'sueldo',
     currency: 'DOP',
     paymentMethod: 'efectivo'
@@ -57,7 +58,8 @@ const TransactionForm = ({
       setFormData(prev => ({
         ...prev,
         [name]: value,
-        category: newCategories[0] || ''
+        category: newCategories[0] || '',
+        tipo_gasto: value === 'gasto-fijo' ? 'fijo' : value === 'gasto-variable' ? 'variable' : null
       }));
     } else {
       setFormData(prev => ({
@@ -108,6 +110,7 @@ const TransactionForm = ({
       date: new Date().toISOString().split('T')[0],
       category: expenseCategories[0] || '',
       type: 'gasto-variable',
+      tipo_gasto: 'variable',
       incomeType: 'sueldo',
       currency: 'DOP',
       paymentMethod: 'efectivo'
@@ -140,6 +143,25 @@ const TransactionForm = ({
             <option value="gasto-variable">Gasto Variable</option>
           </select>
         </div>
+
+        {/* Clasificación de gasto */}
+        {(formData.type === 'gasto-fijo' || formData.type === 'gasto-variable') && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Tipo de gasto
+            </label>
+            <select
+              name="tipo_gasto"
+              value={formData.tipo_gasto || ''}
+              onChange={handleChange}
+              disabled={formData.type === 'gasto-fijo'}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg disabled:opacity-60"
+            >
+              <option value="fijo">Fijo</option>
+              <option value="variable">Variable</option>
+            </select>
+          </div>
+        )}
 
         {/* Moneda */}
         <div>

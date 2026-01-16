@@ -54,6 +54,16 @@ const initialData = {
   ]
 };
 
+// Normaliza transacciones antiguas para asegurar el campo tipo_gasto
+const normalizeTransactionsWithGastoType = (transactions = []) => {
+  return transactions.map((t) => {
+    if (t.tipo_gasto) return t;
+    if (t.type === 'gasto-fijo') return { ...t, tipo_gasto: 'fijo' };
+    if (t.type === 'gasto-variable') return { ...t, tipo_gasto: 'variable' };
+    return { ...t, tipo_gasto: null };
+  });
+};
+
 /**
  * Hook personalizado para manejar la persistencia de datos financieros en LocalStorage
  * @returns {Object} - Objeto con datos y funciones para manipularlos
@@ -79,6 +89,7 @@ export const useFinancesData = () => {
         setData({
           ...initialData,
           ...decrypted,
+          transactions: normalizeTransactionsWithGastoType(decrypted.transactions),
           incomeCategories: mergedIncomeCategories,
           expenseCategories: mergedExpenseCategories
         });
@@ -110,9 +121,17 @@ export const useFinancesData = () => {
    */
   const addTransaction = (transaction) => {
     const currentRate = getExchangeRate();
+    const gastoKind = transaction.tipo_gasto
+      ? transaction.tipo_gasto
+      : transaction.type === 'gasto-fijo'
+        ? 'fijo'
+        : transaction.type === 'gasto-variable'
+          ? 'variable'
+          : null;
     const newTransaction = {
       id: Date.now().toString(),
       ...transaction,
+      tipo_gasto: gastoKind,
       date: transaction.date || new Date().toISOString().split('T')[0],
       exchangeRate: transaction.exchangeRate || currentRate
     };
@@ -140,7 +159,7 @@ export const useFinancesData = () => {
     setData(prev => ({
       ...prev,
       transactions: prev.transactions.map(t => 
-        t.id === id ? { ...t, ...updatedTransaction } : t
+        t.id === id ? { ...t, ...updatedTransaction, tipo_gasto: updatedTransaction.tipo_gasto ?? t.tipo_gasto ?? (t.type === 'gasto-fijo' ? 'fijo' : t.type === 'gasto-variable' ? 'variable' : null) } : t
       )
     }));
   };
@@ -281,13 +300,13 @@ export const useFinancesData = () => {
 
     // Gastos fijos (convertidos a DOP usando tasa de cada transacción)
     const fixedExpenses = recentTransactions
-      .filter(t => t.type === 'gasto-fijo')
+      .filter(t => t.type === 'gasto-fijo' || t.tipo_gasto === 'fijo')
       .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
     // Gastos variables por mes (convertidos a DOP usando tasa de cada transacción)
     const variableExpensesByMonth = {};
     recentTransactions
-      .filter(t => t.type === 'gasto-variable')
+      .filter(t => t.type === 'gasto-variable' || t.tipo_gasto === 'variable')
       .forEach(t => {
         const date = new Date(t.date);
         const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
