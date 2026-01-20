@@ -205,6 +205,7 @@ function App() {
               <NavButton icon="🔔" label="Alertas" isActive={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="🔍" label="Buscar" isActive={activeTab === 'search'} onClick={() => { setActiveTab('search'); if (isMobile) setSidebarOpen(false); }} />
               <NavButton icon="💾" label="Backup" isActive={activeTab === 'backup'} onClick={() => { setActiveTab('backup'); if (isMobile) setSidebarOpen(false); }} />
+              <NavButton icon="🛍️" label="Compra Segura" isActive={false} onClick={() => { setShowPurchaseModal(true); if (isMobile) setSidebarOpen(false); }} />
             </nav>
 
             {/* Widget de Tasa de Cambio */}
@@ -408,18 +409,7 @@ function App() {
           </button>
         )}
 
-        {/* Botón en Sidebar (Desktop) */}
-        {!isMobile && (
-          <div className="fixed bottom-6 left-6 z-40">
-            <button
-              onClick={() => setShowPurchaseModal(true)}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition transform hover:scale-105 active:scale-95"
-              title="Asistente de Compras"
-            >
-              🛍️ Compra Segura
-            </button>
-          </div>
-        )}
+        {/* Botón en Sidebar (Desktop) eliminado: ahora disponible en el menú lateral */}
 
         {/* Widget Flotante para Móviles */}
         <FloatingNav activeTab={activeTab} onTabChange={setActiveTab} isMobile={isMobile} />
