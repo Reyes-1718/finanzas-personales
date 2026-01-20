@@ -4,7 +4,7 @@
 > Gestiona tus ingresos y gastos con control de presupuestos, metas de ahorro, estadísticas avanzadas y soporte multi-moneda (DOP/USD) con tasas de cambio inmutables.
 
 ![Versión](https://img.shields.io/badge/versión-1.2.0-blue)
-![Estado](https://img.shields.io/badge/estado-activo-brightgreen)
+![Estado](https://img.shields.io/badge/estado-Desatendido-brightgreen)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-green)
 ![Stack](https://img.shields.io/badge/stack-React%2019%20%7C%20Vite%207%20%7C%20Tailwind-0ea5e9)
 
