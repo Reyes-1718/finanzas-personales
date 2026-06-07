@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 /**
  * Hook para manejar presupuestos mensuales por categoría
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react';
  */
 export const useBudgets = () => {
   const [budgets, setBudgets] = useState([]);
-  const STORAGE_KEY = 'monthly_budgets';
+  const STORAGE_KEY = STORAGE_KEYS.MONTHLY_BUDGETS;
 
   // Cargar presupuestos desde localStorage
   useEffect(() => {

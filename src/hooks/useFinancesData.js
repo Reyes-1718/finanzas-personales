@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import CryptoJS from 'crypto-js';
+import { STORAGE_KEYS } from '../constants/storageKeys';
+import { convertToDOP, getStoredExchangeRate } from '../utils/currency';
 
-const STORAGE_KEY = 'finanzas_data';
+const STORAGE_KEY = STORAGE_KEYS.FINANCES_DATA;
 // Nota: establece VITE_ENCRYPTION_KEY en .env.local para producción; evita exponerla en el repo
 const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY || 'cambia-esta-clave-en-.env';
 
@@ -251,22 +253,7 @@ export const useFinancesData = () => {
   /**
    * Obtener tasa de cambio desde localStorage o usar defecto
    */
-  const getExchangeRate = () => {
-    const stored = localStorage.getItem('exchange_rate_usd_dop');
-    return stored ? parseFloat(stored) : 63.52; // Tasa por defecto
-  };
-
-  /**
-   * Convertir monto a DOP según la moneda
-   * Si se proporciona una tasa específica (de transacción), usa esa; de lo contrario, usa la tasa global actual
-   */
-  const convertToDOP = (amount, currency, exchangeRate = null) => {
-    const rate = exchangeRate !== null ? exchangeRate : getExchangeRate();
-    if (currency === 'USD') {
-      return parseFloat(amount) * rate;
-    }
-    return parseFloat(amount);
-  };
+  const getExchangeRate = () => getStoredExchangeRate();
 
   /**
    * Calcular balance (ingresos - gastos) con conversión de monedas

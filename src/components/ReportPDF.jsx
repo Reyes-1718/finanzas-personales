@@ -1,5 +1,6 @@
 import React from 'react';
 import { getYearFromISODate, getMonthFromISODate } from '../utils/dateHelpers';
+import { convertToDOP, getStoredExchangeRate } from '../utils/currency';
 
 const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProjection }) => {
   const months = [
@@ -22,24 +23,15 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
 
   const totalIncome = monthTransactions
     .filter(t => t.type === 'ingreso')
-    .reduce((sum, t) => {
-      const rate = parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-      return sum + (t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount));
-    }, 0);
+    .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
   const totalFixed = monthTransactions
     .filter(t => t.type === 'gasto-fijo')
-    .reduce((sum, t) => {
-      const rate = parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-      return sum + (t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount));
-    }, 0);
+    .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
   const totalVariable = monthTransactions
     .filter(t => t.type === 'gasto-variable')
-    .reduce((sum, t) => {
-      const rate = parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-      return sum + (t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount));
-    }, 0);
+    .reduce((sum, t) => sum + convertToDOP(t.amount, t.currency, t.exchangeRate), 0);
 
   const generateCSVReport = () => {
     let csv = 'REPORTE FINANCIERO\n';
@@ -58,8 +50,8 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
     csv += 'Fecha,Tipo,Categoría,Descripción,Monto DOP,Monto Original,Moneda,Tasa de Cambio,Método Pago\n';
     
     monthTransactions.forEach(t => {
-      const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-      const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+      const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
+      const rate = t.exchangeRate || getStoredExchangeRate();
       const tasa = t.currency === 'USD' ? rate.toFixed(2) : '-';
       const montoOriginal = t.currency === 'USD' ? parseFloat(t.amount).toFixed(2) : '-';
       
@@ -120,8 +112,8 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
         }
       },
       transacciones: monthTransactions.map(t => {
-        const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-        const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+        const rate = t.exchangeRate || getStoredExchangeRate();
+        const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
         
         return {
           fecha: t.date,
@@ -250,8 +242,8 @@ const ReportPDF = ({ transactions, month, year, calculateBalance, calculateProje
               </thead>
               <tbody>
                 {monthTransactions.slice(0, 10).map((t, idx) => {
-                  const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-                  const amountInDOP = t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount);
+                  const rate = t.exchangeRate || getStoredExchangeRate();
+                  const amountInDOP = convertToDOP(t.amount, t.currency, t.exchangeRate);
                   
                   return (
                     <tr key={idx} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">

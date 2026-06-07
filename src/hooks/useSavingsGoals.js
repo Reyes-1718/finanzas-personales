@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 /**
  * Hook para manejar metas de ahorro
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react';
  */
 export const useSavingsGoals = () => {
   const [goals, setGoals] = useState([]);
-  const STORAGE_KEY = 'savings_goals';
+  const STORAGE_KEY = STORAGE_KEYS.SAVINGS_GOALS;
 
   // Cargar metas desde localStorage
   useEffect(() => {

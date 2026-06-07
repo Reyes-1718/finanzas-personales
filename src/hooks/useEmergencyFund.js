@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
+import { STORAGE_KEYS } from '../constants/storageKeys';
+import { convertToDOP, getStoredExchangeRate } from '../utils/currency';
 
-const STORAGE_KEY = 'fondoEmergencia';
-const DEFAULT_RATE = 63.52;
+const STORAGE_KEY = STORAGE_KEYS.EMERGENCY_FUND;
 
 const defaultFund = {
   meta: 0,
@@ -22,16 +23,7 @@ const defaultFund = {
   }
 };
 
-const getRateFromStorage = () => {
-  const stored = localStorage.getItem('exchange_rate_usd_dop');
-  return stored ? parseFloat(stored) : DEFAULT_RATE;
-};
-
-const convertToDOP = (amount, currency, rateOverride) => {
-  const num = parseFloat(amount) || 0;
-  const rate = rateOverride || getRateFromStorage();
-  return currency === 'USD' ? num * rate : num;
-};
+const getRateFromStorage = () => getStoredExchangeRate();
 
 const isFixedExpense = (transaction) => {
   if (!transaction) return false;

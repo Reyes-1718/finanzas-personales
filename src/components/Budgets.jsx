@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { convertToDOP } from '../utils/currency';
 
 const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, transactions, month, year, categories, monthlyIncome = 0, getAutoBudgetAmount, getSuggestedBudgets, applyAutoBudgets }) => {
     // Diagnóstico
@@ -45,8 +46,7 @@ const Budgets = ({ budgets, setBudget, getAllBudgetsForMonth, deleteBudget, tran
     return transactions
       .filter(t => t.category === category && t.type.includes('gasto'))
       .reduce((sum, t) => {
-        const rate = t.exchangeRate || parseFloat(localStorage.getItem('exchange_rate_usd_dop') || 63.52);
-        return sum + (t.currency === 'USD' ? parseFloat(t.amount) * rate : parseFloat(t.amount));
+        return sum + convertToDOP(t.amount, t.currency, t.exchangeRate);
       }, 0);
   };
 

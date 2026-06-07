@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 /**
  * Hook para manejar alertas y límites
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react';
 export const useAlerts = () => {
   const [alerts, setAlerts] = useState([]);
   const [settings, setSettings] = useState(null);
-  const STORAGE_KEY = 'alert_settings';
+  const STORAGE_KEY = STORAGE_KEYS.ALERT_SETTINGS;
 
   const DEFAULT_SETTINGS = {
     dailyLimit: 5000,

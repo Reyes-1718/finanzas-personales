@@ -1,6 +1,8 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { parseLocalDate } from '../utils/dateHelpers';
+import { useIsMobile } from '../hooks/useMediaQuery';
+import { convertToDOP, formatCurrency } from '../utils/currency';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#6B7280'];
 
@@ -13,28 +15,7 @@ const Dashboard = ({
 }) => {
   const [sortBy, setSortBy] = useState('date'); // 'date', 'amount', 'category'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // Detectar cambios de tamaño de pantalla
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Función para convertir USD a DOP (memoizada)
-  const convertToDOP = useCallback((amount, currency, exchangeRate = null) => {
-    const rate = exchangeRate !== null ? exchangeRate : (localStorage.getItem('exchange_rate_usd_dop') 
-      ? parseFloat(localStorage.getItem('exchange_rate_usd_dop')) 
-      : 63.52);
-    if (currency === 'USD') {
-      return parseFloat(amount) * rate;
-    }
-    return parseFloat(amount);
-  }, []);
+  const isMobile = useIsMobile();
 
   // Filtrar transacciones del mes seleccionado
   const monthTransactions = useMemo(() => {
@@ -97,14 +78,6 @@ const Dashboard = ({
       setSortBy(column);
       setSortOrder('desc');
     }
-  };
-
-  const formatCurrency = (amount, currency = 'DOP') => {
-    const symbol = currency === 'USD' ? 'US$' : 'RD$';
-    return `${symbol} ${new Intl.NumberFormat('es-DO', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount)}`;
   };
 
   const getTypeLabel = (type, incomeType) => {

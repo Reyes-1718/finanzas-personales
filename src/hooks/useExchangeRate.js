@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '../constants/storageKeys';
+import { DEFAULT_EXCHANGE_RATE } from '../utils/currency';
 
 /**
  * Hook para obtener la tasa de cambio USD -> DOP
@@ -12,9 +14,9 @@ export const useExchangeRate = () => {
 
   // Intentar obtener la tasa desde localStorage como fallback
   useEffect(() => {
-    const storedRate = localStorage.getItem('exchange_rate_usd_dop');
-    const storedDate = localStorage.getItem('exchange_rate_date');
-    
+    const storedRate = localStorage.getItem(STORAGE_KEYS.EXCHANGE_RATE);
+    const storedDate = localStorage.getItem(STORAGE_KEYS.EXCHANGE_RATE_DATE);
+
     if (storedRate && storedDate) {
       setRate(parseFloat(storedRate));
       setLastUpdated(new Date(storedDate));
@@ -25,8 +27,8 @@ export const useExchangeRate = () => {
   const updateRate = (newRate) => {
     setRate(newRate);
     setLastUpdated(new Date());
-    localStorage.setItem('exchange_rate_usd_dop', newRate.toString());
-    localStorage.setItem('exchange_rate_date', new Date().toISOString());
+    localStorage.setItem(STORAGE_KEYS.EXCHANGE_RATE, newRate.toString());
+    localStorage.setItem(STORAGE_KEYS.EXCHANGE_RATE_DATE, new Date().toISOString());
   };
 
   // Función para obtener la tasa desde una API
@@ -39,11 +41,9 @@ export const useExchangeRate = () => {
       // Opción 2: exchangerate-api.com (requiere API key gratuita)
       // Opción 3: API alternativa
       
-      // Por ahora, usar una tasa fija como ejemplo
-      // En producción, deberías usar una API real
       const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
       const data = await response.json();
-      
+
       if (data && data.rates && data.rates.DOP) {
         const fetchedRate = data.rates.DOP;
         updateRate(fetchedRate);
@@ -56,25 +56,22 @@ export const useExchangeRate = () => {
       console.error('Error al obtener tasa de cambio:', err);
       setError(err.message);
       setLoading(false);
-      
-      // Si falla, usar tasa por defecto
+
       if (!rate) {
-        updateRate(58.50); // Tasa aproximada por defecto
+        updateRate(DEFAULT_EXCHANGE_RATE);
       }
-      return rate || 58.50;
+      return rate || DEFAULT_EXCHANGE_RATE;
     }
   };
 
   // Convertir de USD a DOP
   const convertUSDtoDOP = (amountUSD) => {
-    if (!rate) return amountUSD * 58.50; // Tasa por defecto
-    return amountUSD * rate;
+    return amountUSD * (rate ?? DEFAULT_EXCHANGE_RATE);
   };
 
   // Convertir de DOP a USD
   const convertDOPtoUSD = (amountDOP) => {
-    if (!rate) return amountDOP / 58.50; // Tasa por defecto
-    return amountDOP / rate;
+    return amountDOP / (rate ?? DEFAULT_EXCHANGE_RATE);
   };
 
   return {

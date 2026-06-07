@@ -1,25 +1,12 @@
 import React, { useState } from 'react';
+import { NAV_ITEMS } from '../constants/navigation';
 
 const FloatingNav = ({ activeTab, onTabChange, isMobile }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!isMobile) return null;
 
-  const navItems = [
-    { icon: '📊', label: 'Dashboard', key: 'dashboard' },
-    { icon: '💳', label: 'Transacciones', key: 'transactions' },
-    { icon: '⚡', label: 'Gastos Diarios', key: 'daily' },
-    { icon: '📈', label: 'Proyección', key: 'projection' },
-    { icon: '💚', label: 'Metas', key: 'goals' },
-    { icon: '📊', label: 'Presupuestos', key: 'budgets' },
-    { icon: '🛟', label: 'Fondo', key: 'emergency' },
-    { icon: '📈', label: 'Estadísticas', key: 'stats' },
-    { icon: '📅', label: 'Calendario', key: 'calendar' },
-    { icon: '📋', label: 'Reportes', key: 'reports' },
-    { icon: '🔔', label: 'Alertas', key: 'alerts' },
-    { icon: '🔍', label: 'Buscar', key: 'search' },
-    { icon: '💾', label: 'Backup', key: 'backup' },
-  ];
+  const navItems = NAV_ITEMS;
 
   const handleNavClick = (key) => {
     onTabChange(key);
